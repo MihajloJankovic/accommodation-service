@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "../accommodation_service";
+option go_package = "../main";
 service accommodation {
   rpc GetAccommodation(AccommodationRequest) returns (AccommodationResponse);
   rpc SetAccommodation(AccommodationResponse) returns (Empty);

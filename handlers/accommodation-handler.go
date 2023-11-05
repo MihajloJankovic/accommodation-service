@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"context"
-	protos "github.com/MihajloJankovic/accommodation-service/protos/accommodation_service"
+	protos "github.com/MihajloJankovic/accommodation-service/protos/main"
 	"google.golang.org/grpc"
 	"log"
 )
