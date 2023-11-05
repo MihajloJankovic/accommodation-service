@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option go_package = "../accommodation_service";
+service accommodation {
+  rpc GetAccommodation(AccommodationRequest) returns (AccommodationResponse);
+  rpc SetAccommodation(AccommodationResponse) returns (Empty);
+  rpc UpdateAccommodation(AccommodationResponse) returns (Empty);
+}
+
+message  AccommodationRequest {
+  string email = 1;
+}
+message  AccommodationResponse {
+  string name = 1;
+  string price = 2;
+  string location = 3;
+  string adress = 4;
+
+}
+message  Empty {
+}
