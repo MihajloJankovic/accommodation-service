@@ -17,28 +17,28 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	serverRegistar := grpc.NewServer()
+	serverRegister := grpc.NewServer()
 
 	timeoutContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	logger := log.New(os.Stdout, "[accommodation-main] ", log.LstdFlags)
-	accommodationlog := log.New(os.Stdout, "[accommodation-repo-log] ", log.LstdFlags)
+	accommodationLog := log.New(os.Stdout, "[accommodation-repo-log] ", log.LstdFlags)
 
-	profileRepo, err := handlers.New(timeoutContext, accommodationlog)
+	accommodationRepo, err := handlers.New(timeoutContext, accommodationLog)
 	if err != nil {
 		logger.Fatal(err)
 	}
-	defer profileRepo.Disconnect(timeoutContext)
+	defer accommodationRepo.Disconnect(timeoutContext)
 
 	// NoSQL: Checking if the connection was established
-	profileRepo.Ping()
+	accommodationRepo.Ping()
 
 	//Initialize the handler and inject said logger
-	service := handlers.NewServer(logger, profileRepo)
+	service := handlers.NewServer(logger, accommodationRepo)
 
-	protos.RegisterAccommodationServer(serverRegistar, service)
-	err = serverRegistar.Serve(lis)
+	protos.RegisterAccommodationServer(serverRegister, service)
+	err = serverRegister.Serve(lis)
 	if err != nil {
 		log.Fatal(err)
 	}

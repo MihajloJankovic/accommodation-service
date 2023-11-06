@@ -118,10 +118,10 @@ func (ar *AccommodationRepo) Update(accommodation *protos.AccommodationResponse)
 
 	filter := bson.M{"email": accommodation.GetEmail()}
 	update := bson.M{"$set": bson.M{
-		"gender":    accommodation.GetName(),
-		"firstname": accommodation.GetPrice(),
-		"lastname":  accommodation.GetLocation(),
-		"birthday":  accommodation.GetAdress(),
+		"name":     accommodation.GetName(),
+		"price":    accommodation.GetPrice(),
+		"location": accommodation.GetLocation(),
+		"adress":   accommodation.GetAdress(),
 	}}
 	result, err := accommodationCollection.UpdateOne(ctx, filter, update)
 	ar.logger.Printf("Documents matched: %v\n", result.MatchedCount)

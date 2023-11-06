@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	protos "github.com/MihajloJankovic/accommodation-service/protos/main"
-	"google.golang.org/grpc"
 	"log"
 )
 
@@ -18,7 +17,11 @@ func NewServer(l *log.Logger, r *AccommodationRepo) *myAccommodationServer {
 	return &myAccommodationServer{*new(protos.UnimplementedAccommodationServer), l, r}
 }
 
-func (s myAccommodationServer) GetAccommodation(ctx context.Context, in *protos.AccommodationRequest, opts ...grpc.CallOption) (*protos.AccommodationResponse, error) {
+//GetAccommodation(context.Context, *AccommodationRequest) (*AccommodationResponse, error)
+//SetAccommodation(context.Context, *AccommodationResponse) (*Empty, error)
+//UpdateAccommodation(context.Context, *AccommodationResponse) (*Empty, error)
+
+func (s myAccommodationServer) GetAccommodation(ctx context.Context, in *protos.AccommodationRequest) (*protos.AccommodationResponse, error) {
 	out, err := s.repo.GetById(in.GetEmail())
 	if err != nil {
 		s.logger.Println(err)
@@ -26,7 +29,7 @@ func (s myAccommodationServer) GetAccommodation(ctx context.Context, in *protos.
 	}
 	return out, nil
 }
-func (s myAccommodationServer) SetAccommodation(ctx context.Context, in *protos.AccommodationResponse, opts ...grpc.CallOption) (*protos.Empty, error) {
+func (s myAccommodationServer) SetAccommodation(ctx context.Context, in *protos.AccommodationResponse) (*protos.Empty, error) {
 	out := new(protos.AccommodationResponse)
 	out.Name = in.GetName()
 	out.Price = in.GetPrice()
@@ -40,7 +43,7 @@ func (s myAccommodationServer) SetAccommodation(ctx context.Context, in *protos.
 	}
 	return new(protos.Empty), nil
 }
-func (s myAccommodationServer) UpdateAccommodation(ctx context.Context, in *protos.AccommodationResponse, opts ...grpc.CallOption) (*protos.Empty, error) {
+func (s myAccommodationServer) UpdateAccommodation(ctx context.Context, in *protos.AccommodationResponse) (*protos.Empty, error) {
 	err := s.repo.Update(in)
 	if err != nil {
 		return nil, err
