@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 	protos "github.com/MihajloJankovic/accommodation-service/protos/main"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"log"
 	"os"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 type AccommodationRepo struct {
@@ -97,4 +97,23 @@ func (ar *AccommodationRepo) GetById(email string) (*protos.AccommodationRespons
 	}
 
 	return &accommodation, nil
+}
+func (ar *AccommodationRepo) Create(profile *protos.AccommodationResponse) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	accommodationCollection := ar.getCollection()
+
+	result, err := accommodationCollection.InsertOne(ctx, &profile)
+	if err != nil {
+		ar.logger.Println(err)
+		return err
+	}
+	ar.logger.Printf("Documents ID: %v\n", result.InsertedID)
+	return nil
+}
+
+func (ar *AccommodationRepo) getCollection() *mongo.Collection {
+	accommodationDatabase := ar.cli.Database("mongoAccommodation")
+	accommodationCollection := accommodationDatabase.Collection("accommodations")
+	return accommodationCollection
 }
