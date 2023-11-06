@@ -19,7 +19,12 @@ func NewServer(l *log.Logger, r *AccommodationRepo) *myAccommodationServer {
 }
 
 func (s myAccommodationServer) GetAccommodation(ctx context.Context, in *protos.AccommodationRequest, opts ...grpc.CallOption) (*protos.AccommodationResponse, error) {
-	return nil, nil
+	out, err := s.repo.GetById(in.GetEmail())
+	if err != nil {
+		s.logger.Println(err)
+		return nil, err
+	}
+	return out, nil
 }
 func (s myAccommodationServer) SetAccommodation(ctx context.Context, in *protos.AccommodationResponse, opts ...grpc.CallOption) (*protos.Empty, error) {
 	return nil, nil

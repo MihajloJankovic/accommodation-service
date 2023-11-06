@@ -1,7 +1,100 @@
 package handlers
 
-import "log"
+import (
+	"context"
+	"fmt"
+	protos "github.com/MihajloJankovic/accommodation-service/protos/main"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"log"
+	"os"
+	"time"
+
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+)
 
 type AccommodationRepo struct {
 	logger *log.Logger
+	cli    *mongo.Client
+}
+
+// NoSQL: Constructor which reads db configuration from environment
+func New(ctx context.Context, logger *log.Logger) (*AccommodationRepo, error) {
+	dburi := os.Getenv("MONGO_DB_URI")
+
+	client, err := mongo.NewClient(options.Client().ApplyURI(dburi))
+	if err != nil {
+		return nil, err
+	}
+
+	err = client.Connect(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &AccommodationRepo{
+		cli:    client,
+		logger: logger,
+	}, nil
+}
+
+// Disconnect from database
+func (ar *AccommodationRepo) Disconnect(ctx context.Context) error {
+	err := ar.cli.Disconnect(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Check database connection
+func (ar *AccommodationRepo) Ping() {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Check connection -> if no error, connection is established
+	err := ar.cli.Ping(ctx, readpref.Primary())
+	if err != nil {
+		ar.logger.Println(err)
+	}
+	// Print available databases
+	databases, err := ar.cli.ListDatabaseNames(ctx, bson.M{})
+	if err != nil {
+		ar.logger.Println(err)
+	}
+	fmt.Println(databases)
+}
+func (ar *AccommodationRepo) GetAll() (*[]protos.AccommodationResponse, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	accommodationCollection := ar.getCollection()
+	var accommodationsSlice []protos.AccommodationResponse
+
+	accommodationCursor, err := accommodationCollection.Find(ctx, bson.M{})
+	if err != nil {
+		ar.logger.Println(err)
+		return nil, err
+	}
+	if err = accommodationCursor.All(ctx, &accommodationsSlice); err != nil {
+		ar.logger.Println(err)
+		return nil, err
+	}
+	return &accommodationsSlice, nil
+}
+func (ar *AccommodationRepo) GetById(email string) (*protos.AccommodationResponse, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	accommodationCollection := ar.getCollection()
+	var accommodation protos.AccommodationResponse
+
+	err := accommodationCollection.FindOne(ctx, bson.M{"email": email}).Decode(&accommodation)
+	if err != nil {
+		ar.logger.Println(err)
+		return nil, err
+	}
+
+	return &accommodation, nil
 }
