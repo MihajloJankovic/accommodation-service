@@ -13,7 +13,7 @@ import (
 
 func main() {
 
-	lis, err := net.Listen("tcp", ":9091")
+	lis, err := net.Listen("tcp", ":9093")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -22,10 +22,10 @@ func main() {
 	timeoutContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	logger := log.New(os.Stdout, "[profile-main] ", log.LstdFlags)
-	profilelog := log.New(os.Stdout, "[profile-repo-log] ", log.LstdFlags)
+	logger := log.New(os.Stdout, "[accommodation-main] ", log.LstdFlags)
+	accommodationlog := log.New(os.Stdout, "[accommodation-repo-log] ", log.LstdFlags)
 
-	profileRepo, err := handlers.New(timeoutContext, profilelog)
+	profileRepo, err := handlers.New(timeoutContext, accommodationlog)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -37,7 +37,7 @@ func main() {
 	//Initialize the handler and inject said logger
 	service := handlers.NewServer(logger, profileRepo)
 
-	protos.RegisterProfileServer(serverRegistar, service)
+	protos.RegisterAccommodationServer(serverRegistar, service)
 	err = serverRegistar.Serve(lis)
 	if err != nil {
 		log.Fatal(err)
