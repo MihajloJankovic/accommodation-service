@@ -15,6 +15,7 @@ message  AccommodationResponse {
   string price = 2;
   string location = 3;
   string adress = 4;
+  string email = 5;
 
 }
 message  Empty {

@@ -4,14 +4,13 @@ import (
 	"context"
 	"fmt"
 	protos "github.com/MihajloJankovic/accommodation-service/protos/main"
-	"log"
-	"os"
-	"time"
-
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"log"
+	"os"
+	"time"
 )
 
 type AccommodationRepo struct {
@@ -109,6 +108,29 @@ func (ar *AccommodationRepo) Create(profile *protos.AccommodationResponse) error
 		return err
 	}
 	ar.logger.Printf("Documents ID: %v\n", result.InsertedID)
+	return nil
+}
+
+func (ar *AccommodationRepo) Update(accommodation *protos.AccommodationResponse) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	accommodationCollection := ar.getCollection()
+
+	filter := bson.M{"email": accommodation.GetEmail()}
+	update := bson.M{"$set": bson.M{
+		"gender":    accommodation.GetName(),
+		"firstname": accommodation.GetPrice(),
+		"lastname":  accommodation.GetLocation(),
+		"birthday":  accommodation.GetAdress(),
+	}}
+	result, err := accommodationCollection.UpdateOne(ctx, filter, update)
+	ar.logger.Printf("Documents matched: %v\n", result.MatchedCount)
+	ar.logger.Printf("Documents updated: %v\n", result.ModifiedCount)
+
+	if err != nil {
+		ar.logger.Println(err)
+		return err
+	}
 	return nil
 }
 
