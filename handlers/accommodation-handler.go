@@ -29,7 +29,7 @@ func (s myAccommodationServer) GetAccommodation(ctx context.Context, in *protos.
 	}
 	return out, nil
 }
-func (s myAccommodationServer) SetAccommodation(ctx context.Context, in *protos.AccommodationResponse) (*protos.Empty, error) {
+func (s myAccommodationServer) SetAccommodation(ctx context.Context, in *protos.AccommodationResponse) (*protos.Emptya, error) {
 	out := new(protos.AccommodationResponse)
 	out.Name = in.GetName()
 	out.Price = in.GetPrice()
@@ -41,12 +41,12 @@ func (s myAccommodationServer) SetAccommodation(ctx context.Context, in *protos.
 		s.logger.Println(err)
 		return nil, err
 	}
-	return new(protos.Empty), nil
+	return new(protos.Emptya), nil
 }
-func (s myAccommodationServer) UpdateAccommodation(ctx context.Context, in *protos.AccommodationResponse) (*protos.Empty, error) {
+func (s myAccommodationServer) UpdateAccommodation(ctx context.Context, in *protos.AccommodationResponse) (*protos.Emptya, error) {
 	err := s.repo.Update(in)
 	if err != nil {
 		return nil, err
 	}
-	return new(protos.Empty), nil
+	return new(protos.Emptya), nil
 }

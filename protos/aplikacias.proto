@@ -3,8 +3,8 @@ syntax = "proto3";
 option go_package = "../main";
 service accommodation {
   rpc GetAccommodation(AccommodationRequest) returns (AccommodationResponse);
-  rpc SetAccommodation(AccommodationResponse) returns (Empty);
-  rpc UpdateAccommodation(AccommodationResponse) returns (Empty);
+  rpc SetAccommodation(AccommodationResponse) returns (Emptya);
+  rpc UpdateAccommodation(AccommodationResponse) returns (Emptya);
 }
 
 message  AccommodationRequest {
@@ -18,5 +18,5 @@ message  AccommodationResponse {
   string email = 5;
 
 }
-message  Empty {
+message  Emptya {
 }

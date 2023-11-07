@@ -29,8 +29,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AccommodationClient interface {
 	GetAccommodation(ctx context.Context, in *AccommodationRequest, opts ...grpc.CallOption) (*AccommodationResponse, error)
-	SetAccommodation(ctx context.Context, in *AccommodationResponse, opts ...grpc.CallOption) (*Empty, error)
-	UpdateAccommodation(ctx context.Context, in *AccommodationResponse, opts ...grpc.CallOption) (*Empty, error)
+	SetAccommodation(ctx context.Context, in *AccommodationResponse, opts ...grpc.CallOption) (*Emptya, error)
+	UpdateAccommodation(ctx context.Context, in *AccommodationResponse, opts ...grpc.CallOption) (*Emptya, error)
 }
 
 type accommodationClient struct {
@@ -50,8 +50,8 @@ func (c *accommodationClient) GetAccommodation(ctx context.Context, in *Accommod
 	return out, nil
 }
 
-func (c *accommodationClient) SetAccommodation(ctx context.Context, in *AccommodationResponse, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
+func (c *accommodationClient) SetAccommodation(ctx context.Context, in *AccommodationResponse, opts ...grpc.CallOption) (*Emptya, error) {
+	out := new(Emptya)
 	err := c.cc.Invoke(ctx, Accommodation_SetAccommodation_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -59,8 +59,8 @@ func (c *accommodationClient) SetAccommodation(ctx context.Context, in *Accommod
 	return out, nil
 }
 
-func (c *accommodationClient) UpdateAccommodation(ctx context.Context, in *AccommodationResponse, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
+func (c *accommodationClient) UpdateAccommodation(ctx context.Context, in *AccommodationResponse, opts ...grpc.CallOption) (*Emptya, error) {
+	out := new(Emptya)
 	err := c.cc.Invoke(ctx, Accommodation_UpdateAccommodation_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -73,8 +73,8 @@ func (c *accommodationClient) UpdateAccommodation(ctx context.Context, in *Accom
 // for forward compatibility
 type AccommodationServer interface {
 	GetAccommodation(context.Context, *AccommodationRequest) (*AccommodationResponse, error)
-	SetAccommodation(context.Context, *AccommodationResponse) (*Empty, error)
-	UpdateAccommodation(context.Context, *AccommodationResponse) (*Empty, error)
+	SetAccommodation(context.Context, *AccommodationResponse) (*Emptya, error)
+	UpdateAccommodation(context.Context, *AccommodationResponse) (*Emptya, error)
 	mustEmbedUnimplementedAccommodationServer()
 }
 
@@ -85,10 +85,10 @@ type UnimplementedAccommodationServer struct {
 func (UnimplementedAccommodationServer) GetAccommodation(context.Context, *AccommodationRequest) (*AccommodationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAccommodation not implemented")
 }
-func (UnimplementedAccommodationServer) SetAccommodation(context.Context, *AccommodationResponse) (*Empty, error) {
+func (UnimplementedAccommodationServer) SetAccommodation(context.Context, *AccommodationResponse) (*Emptya, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetAccommodation not implemented")
 }
-func (UnimplementedAccommodationServer) UpdateAccommodation(context.Context, *AccommodationResponse) (*Empty, error) {
+func (UnimplementedAccommodationServer) UpdateAccommodation(context.Context, *AccommodationResponse) (*Emptya, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateAccommodation not implemented")
 }
 func (UnimplementedAccommodationServer) mustEmbedUnimplementedAccommodationServer() {}
