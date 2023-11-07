@@ -4,7 +4,7 @@
 // 	protoc        v4.25.0
 // source: appa.proto
 
-package protosgenerated
+package protosgenerateda
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
