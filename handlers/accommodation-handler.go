@@ -35,6 +35,7 @@ func (s myAccommodationServer) SetAccommodation(ctx context.Context, in *protos.
 	out.Price = in.GetPrice()
 	out.Location = in.GetLocation()
 	out.Adress = in.GetAdress()
+	out.Email = in.GetEmail()
 
 	err := s.repo.Create(out)
 	if err != nil {
