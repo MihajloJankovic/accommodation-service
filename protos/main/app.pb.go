@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.31.0
 // 	protoc        v4.25.0
-// source: appa.proto
+// source: aplikacias.proto
 
-package protosgenerateda
+package aplikacias
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"

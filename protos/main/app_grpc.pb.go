@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v4.25.0
-// source: appa.proto
+// source: aplikacias.proto
 
-package protosgenerateda
+package aplikacias
 
 import (
 	context "context"
@@ -179,5 +179,5 @@ var Accommodation_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "appa.proto",
+	Metadata: "aplikacias.proto",
 }
