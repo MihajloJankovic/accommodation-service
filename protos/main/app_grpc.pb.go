@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v4.25.0
-// source: app.proto
+// source: appa.proto
 
 package protosgenerated
 
@@ -179,5 +179,5 @@ var Accommodation_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "app.proto",
+	Metadata: "appa.proto",
 }

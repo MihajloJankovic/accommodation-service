@@ -1,4 +1,4 @@
-package accommodation_service
+package main
 
 import (
 	"context"
