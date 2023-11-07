@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"github.com/MihajloJankovic/accommodation-service/handlers"
-	protos "github.com/MihajloJankovic/accommodation-service/protos/main"
+	protos "github.com/MihajloJankovic/accommodation-service/protos/glavno"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -22,7 +22,7 @@ func main() {
 	timeoutContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	logger := log.New(os.Stdout, "[accommodation-main] ", log.LstdFlags)
+	logger := log.New(os.Stdout, "[accommodation-glavno] ", log.LstdFlags)
 	accommodationLog := log.New(os.Stdout, "[accommodation-repo-log] ", log.LstdFlags)
 
 	accommodationRepo, err := handlers.New(timeoutContext, accommodationLog)

@@ -5,9 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7bb546be-8b94-466f-829b-f17f73f84151" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/protos/appa.proto" beforeDir="false" afterPath="$PROJECT_DIR$/protos/aplikacias.proto" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protos/main/app.pb.go" beforeDir="false" afterPath="$PROJECT_DIR$/protos/main/app.pb.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protos/main/app_grpc.pb.go" beforeDir="false" afterPath="$PROJECT_DIR$/protos/main/app_grpc.pb.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handlers/accommodation-handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/accommodation-handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handlers/repo.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/repo.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protos/aplikacias.proto" beforeDir="false" afterPath="$PROJECT_DIR$/protos/aplikacias.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protos/main/app.pb.go" beforeDir="false" afterPath="$PROJECT_DIR$/protos/glavno/app.pb.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protos/main/app_grpc.pb.go" beforeDir="false" afterPath="$PROJECT_DIR$/protos/glavno/app_grpc.pb.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
