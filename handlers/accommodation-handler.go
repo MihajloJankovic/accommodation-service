@@ -21,13 +21,15 @@ func NewServer(l *log.Logger, r *AccommodationRepo) *myAccommodationServer {
 //SetAccommodation(context.Context, *AccommodationResponse) (*Empty, error)
 //UpdateAccommodation(context.Context, *AccommodationResponse) (*Empty, error)
 
-func (s myAccommodationServer) GetAccommodation(ctx context.Context, in *protos.AccommodationRequest) (*[]protos.AccommodationResponse, error) {
+func (s myAccommodationServer) GetAccommodation(ctx context.Context, in *protos.AccommodationRequest) (*protos.DummyList, error) {
 	out, err := s.repo.GetById(in.GetEmail())
 	if err != nil {
 		s.logger.Println(err)
 		return nil, err
 	}
-	return out, nil
+	ss := new(protos.DummyList)
+	ss.Dummy = out
+	return ss, nil
 }
 func (s myAccommodationServer) SetAccommodation(ctx context.Context, in *protos.AccommodationResponse) (*protos.Emptya, error) {
 	out := new(protos.AccommodationResponse)

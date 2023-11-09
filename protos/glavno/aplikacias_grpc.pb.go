@@ -28,7 +28,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AccommodationClient interface {
-	GetAccommodation(ctx context.Context, in *AccommodationRequest, opts ...grpc.CallOption) (*AccommodationResponse, error)
+	GetAccommodation(ctx context.Context, in *AccommodationRequest, opts ...grpc.CallOption) (*DummyList, error)
 	SetAccommodation(ctx context.Context, in *AccommodationResponse, opts ...grpc.CallOption) (*Emptya, error)
 	UpdateAccommodation(ctx context.Context, in *AccommodationResponse, opts ...grpc.CallOption) (*Emptya, error)
 }
@@ -41,8 +41,8 @@ func NewAccommodationClient(cc grpc.ClientConnInterface) AccommodationClient {
 	return &accommodationClient{cc}
 }
 
-func (c *accommodationClient) GetAccommodation(ctx context.Context, in *AccommodationRequest, opts ...grpc.CallOption) (*AccommodationResponse, error) {
-	out := new(AccommodationResponse)
+func (c *accommodationClient) GetAccommodation(ctx context.Context, in *AccommodationRequest, opts ...grpc.CallOption) (*DummyList, error) {
+	out := new(DummyList)
 	err := c.cc.Invoke(ctx, Accommodation_GetAccommodation_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -72,7 +72,7 @@ func (c *accommodationClient) UpdateAccommodation(ctx context.Context, in *Accom
 // All implementations must embed UnimplementedAccommodationServer
 // for forward compatibility
 type AccommodationServer interface {
-	GetAccommodation(context.Context, *AccommodationRequest) (*AccommodationResponse, error)
+	GetAccommodation(context.Context, *AccommodationRequest) (*DummyList, error)
 	SetAccommodation(context.Context, *AccommodationResponse) (*Emptya, error)
 	UpdateAccommodation(context.Context, *AccommodationResponse) (*Emptya, error)
 	mustEmbedUnimplementedAccommodationServer()
@@ -82,7 +82,7 @@ type AccommodationServer interface {
 type UnimplementedAccommodationServer struct {
 }
 
-func (UnimplementedAccommodationServer) GetAccommodation(context.Context, *AccommodationRequest) (*AccommodationResponse, error) {
+func (UnimplementedAccommodationServer) GetAccommodation(context.Context, *AccommodationRequest) (*DummyList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAccommodation not implemented")
 }
 func (UnimplementedAccommodationServer) SetAccommodation(context.Context, *AccommodationResponse) (*Emptya, error) {

@@ -82,23 +82,38 @@ func (ar *AccommodationRepo) GetAll() (*[]protos.AccommodationResponse, error) {
 	}
 	return &accommodationsSlice, nil
 }
-func (ar *AccommodationRepo) GetById(email string) (*[]protos.AccommodationResponse, error) {
+func (ar *AccommodationRepo) GetById(email string) ([]*protos.AccommodationResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	accommodationCollection := ar.getCollection()
-	var accommodationsSlice []protos.AccommodationResponse
+	var accommodationsSlice []*protos.AccommodationResponse
 
-	accommodationCursor, err := accommodationCollection.Find(ctx, bson.M{})
+	// Assuming you have a filter based on the email, modify the filter as needed
+	filter := bson.M{"email": email}
+
+	accommodationCursor, err := accommodationCollection.Find(ctx, filter)
 	if err != nil {
 		ar.logger.Println(err)
 		return nil, err
 	}
-	if err = accommodationCursor.All(ctx, &accommodationsSlice); err != nil {
+	defer accommodationCursor.Close(ctx)
+
+	for accommodationCursor.Next(ctx) {
+		var accommodation protos.AccommodationResponse
+		if err := accommodationCursor.Decode(&accommodation); err != nil {
+			ar.logger.Println(err)
+			return nil, err
+		}
+		accommodationsSlice = append(accommodationsSlice, &accommodation)
+	}
+
+	if err := accommodationCursor.Err(); err != nil {
 		ar.logger.Println(err)
 		return nil, err
 	}
-	return &accommodationsSlice, nil
+
+	return accommodationsSlice, nil
 }
 func (ar *AccommodationRepo) Create(profile *protos.AccommodationResponse) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
