@@ -21,7 +21,7 @@ func NewServer(l *log.Logger, r *AccommodationRepo) *myAccommodationServer {
 //SetAccommodation(context.Context, *AccommodationResponse) (*Empty, error)
 //UpdateAccommodation(context.Context, *AccommodationResponse) (*Empty, error)
 
-func (s myAccommodationServer) GetAccommodation(ctx context.Context, in *protos.AccommodationRequest) (*protos.AccommodationResponse, error) {
+func (s myAccommodationServer) GetAccommodation(ctx context.Context, in *protos.AccommodationRequest) (*[]protos.AccommodationResponse, error) {
 	out, err := s.repo.GetById(in.GetEmail())
 	if err != nil {
 		s.logger.Println(err)

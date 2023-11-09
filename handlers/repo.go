@@ -82,20 +82,23 @@ func (ar *AccommodationRepo) GetAll() (*[]protos.AccommodationResponse, error) {
 	}
 	return &accommodationsSlice, nil
 }
-func (ar *AccommodationRepo) GetById(email string) (*protos.AccommodationResponse, error) {
+func (ar *AccommodationRepo) GetById(email string) (*[]protos.AccommodationResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	accommodationCollection := ar.getCollection()
-	var accommodation protos.AccommodationResponse
+	var accommodationsSlice []protos.AccommodationResponse
 
-	err := accommodationCollection.FindOne(ctx, bson.M{"email": email}).Decode(&accommodation)
+	accommodationCursor, err := accommodationCollection.Find(ctx, bson.M{})
 	if err != nil {
 		ar.logger.Println(err)
 		return nil, err
 	}
-
-	return &accommodation, nil
+	if err = accommodationCursor.All(ctx, &accommodationsSlice); err != nil {
+		ar.logger.Println(err)
+		return nil, err
+	}
+	return &accommodationsSlice, nil
 }
 func (ar *AccommodationRepo) Create(profile *protos.AccommodationResponse) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
