@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7bb546be-8b94-466f-829b-f17f73f84151" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="7bb546be-8b94-466f-829b-f17f73f84151" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -70,7 +68,7 @@
       <recent name="$PROJECT_DIR$/protos/glavno" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Go Build.go build github.com/MihajloJankovic/accommodation-service">
     <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
       <module name="accommodation-service" />
       <working_directory value="$PROJECT_DIR$" />
@@ -78,6 +76,15 @@
       <kind value="FILE" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build github.com/MihajloJankovic/accommodation-service" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="accommodation-service" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/MihajloJankovic/accommodation-service" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/main.go" />
       <method v="2" />
     </configuration>
     <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
@@ -98,6 +105,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Build.go build github.com/MihajloJankovic/accommodation-service" />
         <item itemvalue="Makefile Target.protos" />
       </list>
     </recent_temporary>
