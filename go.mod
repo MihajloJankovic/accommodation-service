@@ -3,7 +3,7 @@ module github.com/MihajloJankovic/accommodation-service
 go 1.21.3
 
 require (
-	go.mongodb.org/mongo-driver v1.13.0
+	go.mongodb.org/mongo-driver v1.12.1
 	google.golang.org/grpc v1.59.0
 	google.golang.org/protobuf v1.31.0
 )
