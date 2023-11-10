@@ -6,22 +6,22 @@ import (
 	"log"
 )
 
-type myAccommodationServer struct {
+type MyAccommodationServer struct {
 	protos.UnimplementedAccommodationServer
 	logger *log.Logger
 	// NoSQL: injecting product repository
 	repo *AccommodationRepo
 }
 
-func NewServer(l *log.Logger, r *AccommodationRepo) *myAccommodationServer {
-	return &myAccommodationServer{*new(protos.UnimplementedAccommodationServer), l, r}
+func NewServer(l *log.Logger, r *AccommodationRepo) *MyAccommodationServer {
+	return &MyAccommodationServer{*new(protos.UnimplementedAccommodationServer), l, r}
 }
 
 //GetAccommodation(context.Context, *AccommodationRequest) (*AccommodationResponse, error)
 //SetAccommodation(context.Context, *AccommodationResponse) (*Empty, error)
 //UpdateAccommodation(context.Context, *AccommodationResponse) (*Empty, error)
 
-func (s myAccommodationServer) GetAccommodation(ctx context.Context, in *protos.AccommodationRequest) (*protos.DummyList, error) {
+func (s MyAccommodationServer) GetAccommodation(_ context.Context, in *protos.AccommodationRequest) (*protos.DummyList, error) {
 	out, err := s.repo.GetById(in.GetEmail())
 	if err != nil {
 		s.logger.Println(err)
@@ -31,7 +31,7 @@ func (s myAccommodationServer) GetAccommodation(ctx context.Context, in *protos.
 	ss.Dummy = out
 	return ss, nil
 }
-func (s myAccommodationServer) SetAccommodation(ctx context.Context, in *protos.AccommodationResponse) (*protos.Emptya, error) {
+func (s MyAccommodationServer) SetAccommodation(_ context.Context, in *protos.AccommodationResponse) (*protos.Emptya, error) {
 	out := new(protos.AccommodationResponse)
 	out.Name = in.GetName()
 	out.Price = in.GetPrice()
@@ -46,7 +46,7 @@ func (s myAccommodationServer) SetAccommodation(ctx context.Context, in *protos.
 	}
 	return new(protos.Emptya), nil
 }
-func (s myAccommodationServer) UpdateAccommodation(ctx context.Context, in *protos.AccommodationResponse) (*protos.Emptya, error) {
+func (s MyAccommodationServer) UpdateAccommodation(_ context.Context, in *protos.AccommodationResponse) (*protos.Emptya, error) {
 	err := s.repo.Update(in)
 	if err != nil {
 		return nil, err

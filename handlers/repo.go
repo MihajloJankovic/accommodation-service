@@ -18,16 +18,11 @@ type AccommodationRepo struct {
 	cli    *mongo.Client
 }
 
-// NoSQL: Constructor which reads db configuration from environment
+// New NoSQL: Constructor which reads db configuration from environment
 func New(ctx context.Context, logger *log.Logger) (*AccommodationRepo, error) {
 	dburi := os.Getenv("MONGO_DB_URI")
 
-	client, err := mongo.NewClient(options.Client().ApplyURI(dburi))
-	if err != nil {
-		return nil, err
-	}
-
-	err = client.Connect(ctx)
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dburi))
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +42,7 @@ func (ar *AccommodationRepo) Disconnect(ctx context.Context) error {
 	return nil
 }
 
-// Check database connection
+// Ping Check database connection
 func (ar *AccommodationRepo) Ping() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -97,7 +92,12 @@ func (ar *AccommodationRepo) GetById(email string) ([]*protos.AccommodationRespo
 		ar.logger.Println(err)
 		return nil, err
 	}
-	defer accommodationCursor.Close(ctx)
+	defer func(accommodationCursor *mongo.Cursor, ctx context.Context) {
+		err := accommodationCursor.Close(ctx)
+		if err != nil {
+			ar.logger.Println(err)
+		}
+	}(accommodationCursor, ctx)
 
 	for accommodationCursor.Next(ctx) {
 		var accommodation protos.AccommodationResponse

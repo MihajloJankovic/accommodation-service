@@ -6,9 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="7bb546be-8b94-466f-829b-f17f73f84151" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protos/aplikacias.proto" beforeDir="false" afterPath="$PROJECT_DIR$/protos/aplikacias.proto" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protos/glavno/aplikacias.pb.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/protos/glavno/aplikacias_grpc.pb.go" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

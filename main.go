@@ -29,7 +29,12 @@ func main() {
 	if err != nil {
 		logger.Fatal(err)
 	}
-	defer accommodationRepo.Disconnect(timeoutContext)
+	defer func(accommodationRepo *handlers.AccommodationRepo, ctx context.Context) {
+		err := accommodationRepo.Disconnect(ctx)
+		if err != nil {
+
+		}
+	}(accommodationRepo, timeoutContext)
 
 	// NoSQL: Checking if the connection was established
 	accommodationRepo.Ping()
