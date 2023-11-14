@@ -1,8 +1,9 @@
 syntax = "proto3";
 
-option go_package = "../main";
+option go_package = "../glavno";
 service accommodation {
   rpc GetAccommodation(AccommodationRequest) returns (DummyList);
+  rpc GetAllAccommodation(AccommodationRequest) returns (DummyList);
   rpc SetAccommodation(AccommodationResponse) returns (Emptya);
   rpc UpdateAccommodation(AccommodationResponse) returns (Emptya);
 }

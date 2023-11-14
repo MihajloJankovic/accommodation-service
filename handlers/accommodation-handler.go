@@ -31,6 +31,16 @@ func (s MyAccommodationServer) GetAccommodation(_ context.Context, in *protos.Ac
 	ss.Dummy = out
 	return ss, nil
 }
+func (s MyAccommodationServer) GetAllAccommodation(_ context.Context, in *protos.AccommodationRequest) (*protos.DummyList, error) {
+	out, err := s.repo.GetAll()
+	if err != nil {
+		s.logger.Println(err)
+		return nil, err
+	}
+	ss := new(protos.DummyList)
+	ss.Dummy = out
+	return ss, nil
+}
 func (s MyAccommodationServer) SetAccommodation(_ context.Context, in *protos.AccommodationResponse) (*protos.Emptya, error) {
 	out := new(protos.AccommodationResponse)
 	out.Name = in.GetName()

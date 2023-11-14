@@ -59,12 +59,12 @@ func (ar *AccommodationRepo) Ping() {
 	}
 	fmt.Println(databases)
 }
-func (ar *AccommodationRepo) GetAll() (*[]protos.AccommodationResponse, error) {
+func (ar *AccommodationRepo) GetAll() ([]*protos.AccommodationResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	accommodationCollection := ar.getCollection()
-	var accommodationsSlice []protos.AccommodationResponse
+	var accommodationsSlice []*protos.AccommodationResponse
 
 	accommodationCursor, err := accommodationCollection.Find(ctx, bson.M{})
 	if err != nil {
@@ -75,7 +75,7 @@ func (ar *AccommodationRepo) GetAll() (*[]protos.AccommodationResponse, error) {
 		ar.logger.Println(err)
 		return nil, err
 	}
-	return &accommodationsSlice, nil
+	return accommodationsSlice, nil
 }
 func (ar *AccommodationRepo) GetById(email string) ([]*protos.AccommodationResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
