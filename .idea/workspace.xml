@@ -7,7 +7,6 @@
     <list default="true" id="7bb546be-8b94-466f-829b-f17f73f84151" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/handlers/accommodation-handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/accommodation-handler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handlers/repo.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/repo.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/protos/aplikacias.proto" beforeDir="false" afterPath="$PROJECT_DIR$/protos/aplikacias.proto" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/protos/glavno/aplikacias.pb.go" beforeDir="false" afterPath="$PROJECT_DIR$/protos/glavno/aplikacias.pb.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/protos/glavno/aplikacias_grpc.pb.go" beforeDir="false" afterPath="$PROJECT_DIR$/protos/glavno/aplikacias_grpc.pb.go" afterDir="false" />
@@ -25,7 +24,7 @@
       </list>
     </option>
   </component>
-  <component name="GOROOT" url="file:///usr/lib/golang" />
+  <component name="GOROOT" url="file://$USER_HOME$/Go/go1.21.1" />
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
@@ -49,24 +48,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.automatic.dependencies.download&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/mihajlo&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultGoTemplateProperty": "Go File",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "main",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "last_opened_file_path": "C:/Users/Admin/Desktop/Projekat 3. godina/accommodation-service",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\Admin\Desktop\Projekat 3. godina\accommodation-service\protos" />
@@ -75,7 +74,7 @@
       <recent name="$PROJECT_DIR$/protos/glavno" />
     </key>
   </component>
-  <component name="RunManager" selected="Go Build.go build github.com/MihajloJankovic/accommodation-service">
+  <component name="RunManager" selected="Makefile Target.protos">
     <configuration name="go build github.com/MihajloJankovic/accommodation-service" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="accommodation-service" />
       <working_directory value="$PROJECT_DIR$" />
@@ -93,8 +92,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Go Build.go build github.com/MihajloJankovic/accommodation-service" />
         <item itemvalue="Makefile Target.protos" />
+        <item itemvalue="Go Build.go build github.com/MihajloJankovic/accommodation-service" />
       </list>
     </recent_temporary>
   </component>

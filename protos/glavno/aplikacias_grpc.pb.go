@@ -30,7 +30,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AccommodationClient interface {
 	GetAccommodation(ctx context.Context, in *AccommodationRequest, opts ...grpc.CallOption) (*DummyList, error)
-	GetAllAccommodation(ctx context.Context, in *AccommodationRequest, opts ...grpc.CallOption) (*DummyList, error)
+	GetAllAccommodation(ctx context.Context, in *Emptya, opts ...grpc.CallOption) (*DummyList, error)
 	SetAccommodation(ctx context.Context, in *AccommodationResponse, opts ...grpc.CallOption) (*Emptya, error)
 	UpdateAccommodation(ctx context.Context, in *AccommodationResponse, opts ...grpc.CallOption) (*Emptya, error)
 }
@@ -52,7 +52,7 @@ func (c *accommodationClient) GetAccommodation(ctx context.Context, in *Accommod
 	return out, nil
 }
 
-func (c *accommodationClient) GetAllAccommodation(ctx context.Context, in *AccommodationRequest, opts ...grpc.CallOption) (*DummyList, error) {
+func (c *accommodationClient) GetAllAccommodation(ctx context.Context, in *Emptya, opts ...grpc.CallOption) (*DummyList, error) {
 	out := new(DummyList)
 	err := c.cc.Invoke(ctx, Accommodation_GetAllAccommodation_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -84,7 +84,7 @@ func (c *accommodationClient) UpdateAccommodation(ctx context.Context, in *Accom
 // for forward compatibility
 type AccommodationServer interface {
 	GetAccommodation(context.Context, *AccommodationRequest) (*DummyList, error)
-	GetAllAccommodation(context.Context, *AccommodationRequest) (*DummyList, error)
+	GetAllAccommodation(context.Context, *Emptya) (*DummyList, error)
 	SetAccommodation(context.Context, *AccommodationResponse) (*Emptya, error)
 	UpdateAccommodation(context.Context, *AccommodationResponse) (*Emptya, error)
 	mustEmbedUnimplementedAccommodationServer()
@@ -97,7 +97,7 @@ type UnimplementedAccommodationServer struct {
 func (UnimplementedAccommodationServer) GetAccommodation(context.Context, *AccommodationRequest) (*DummyList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAccommodation not implemented")
 }
-func (UnimplementedAccommodationServer) GetAllAccommodation(context.Context, *AccommodationRequest) (*DummyList, error) {
+func (UnimplementedAccommodationServer) GetAllAccommodation(context.Context, *Emptya) (*DummyList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllAccommodation not implemented")
 }
 func (UnimplementedAccommodationServer) SetAccommodation(context.Context, *AccommodationResponse) (*Emptya, error) {
@@ -138,7 +138,7 @@ func _Accommodation_GetAccommodation_Handler(srv interface{}, ctx context.Contex
 }
 
 func _Accommodation_GetAllAccommodation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AccommodationRequest)
+	in := new(Emptya)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -150,7 +150,7 @@ func _Accommodation_GetAllAccommodation_Handler(srv interface{}, ctx context.Con
 		FullMethod: Accommodation_GetAllAccommodation_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccommodationServer).GetAllAccommodation(ctx, req.(*AccommodationRequest))
+		return srv.(AccommodationServer).GetAllAccommodation(ctx, req.(*Emptya))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -17,10 +17,6 @@ func NewServer(l *log.Logger, r *AccommodationRepo) *MyAccommodationServer {
 	return &MyAccommodationServer{*new(protos.UnimplementedAccommodationServer), l, r}
 }
 
-//GetAccommodation(context.Context, *AccommodationRequest) (*AccommodationResponse, error)
-//SetAccommodation(context.Context, *AccommodationResponse) (*Empty, error)
-//UpdateAccommodation(context.Context, *AccommodationResponse) (*Empty, error)
-
 func (s MyAccommodationServer) GetAccommodation(_ context.Context, in *protos.AccommodationRequest) (*protos.DummyList, error) {
 	out, err := s.repo.GetById(in.GetEmail())
 	if err != nil {
@@ -31,7 +27,7 @@ func (s MyAccommodationServer) GetAccommodation(_ context.Context, in *protos.Ac
 	ss.Dummy = out
 	return ss, nil
 }
-func (s MyAccommodationServer) GetAllAccommodation(_ context.Context, in *protos.AccommodationRequest) (*protos.DummyList, error) {
+func (s MyAccommodationServer) GetAllAccommodation(_ context.Context, in *protos.Emptya) (*protos.DummyList, error) {
 	out, err := s.repo.GetAll()
 	if err != nil {
 		s.logger.Println(err)
