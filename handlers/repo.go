@@ -85,7 +85,7 @@ func (ar *AccommodationRepo) GetByUuid(id string) (*protos.AccommodationResponse
 	accCollection := ar.getCollection()
 	var acc protos.AccommodationResponse
 
-	err := accCollection.FindOne(ctx, bson.M{"id": id}).Decode(&acc)
+	err := accCollection.FindOne(ctx, bson.M{"uid": id}).Decode(&acc)
 	if err != nil {
 		ar.logger.Println(err)
 		return nil, err
