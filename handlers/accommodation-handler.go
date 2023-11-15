@@ -16,7 +16,14 @@ type MyAccommodationServer struct {
 func NewServer(l *log.Logger, r *AccommodationRepo) *MyAccommodationServer {
 	return &MyAccommodationServer{*new(protos.UnimplementedAccommodationServer), l, r}
 }
-
+func (s MyAccommodationServer)GetOneAccommodation(ctx context.Context, in *protos.AccommodationRequestOne) (*protos.AccommodationResponse, error) {
+	out, err := s.repo.GetByUuid(in.GetId())
+	if err != nil {
+		s.logger.Println(err)
+		return nil, err
+	}
+	return out, nil
+}
 func (s MyAccommodationServer) GetAccommodation(_ context.Context, in *protos.AccommodationRequest) (*protos.DummyList, error) {
 	out, err := s.repo.GetById(in.GetEmail())
 	if err != nil {

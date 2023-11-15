@@ -4,22 +4,26 @@ option go_package = "../glavno";
 service accommodation {
   rpc GetAccommodation(AccommodationRequest) returns (DummyList);
   rpc GetAllAccommodation(Emptya) returns (DummyList);
+  rpc GetOneAccommodation(AccommodationRequestOne) returns (AccommodationResponse);
   rpc SetAccommodation(AccommodationResponse) returns (Emptya);
   rpc UpdateAccommodation(AccommodationResponse) returns (Emptya);
 }
 message DummyList {
   repeated AccommodationResponse dummy = 1;
 }
-
+message  AccommodationRequestOne {
+  string id = 1;
+}
 message  AccommodationRequest {
   string email = 1;
 }
 message  AccommodationResponse {
-  string name = 1;
-  string price = 2;
-  string location = 3;
-  string adress = 4;
-  string email = 5;
+  string id = 1;
+  string name = 2;
+  string price = 3;
+  string location = 4;
+  string adress = 5;
+  string email = 6;
 
 }
 message  Emptya {

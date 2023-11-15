@@ -77,6 +77,22 @@ func (ar *AccommodationRepo) GetAll() ([]*protos.AccommodationResponse, error) {
 	}
 	return accommodationsSlice, nil
 }
+
+func (ar *AccommodationRepo) GetByUuid(id string) (*protos.AccommodationResponse, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	accCollection := ar.getCollection()
+	var acc protos.AccommodationResponse
+
+	err := accCollection.FindOne(ctx, bson.M{"id": id}).Decode(&acc)
+	if err != nil {
+		ar.logger.Println(err)
+		return nil, err
+	}
+
+	return &acc, nil
+}
 func (ar *AccommodationRepo) GetById(email string) ([]*protos.AccommodationResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
