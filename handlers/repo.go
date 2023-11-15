@@ -135,7 +135,7 @@ func (ar *AccommodationRepo) Create(profile *protos.AccommodationResponse) error
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	accommodationCollection := ar.getCollection()
-
+	fmt.Println(profile.GetId())
 	result, err := accommodationCollection.InsertOne(ctx, &profile)
 	if err != nil {
 		ar.logger.Println(err)
