@@ -46,12 +46,11 @@ func (s MyAccommodationServer) GetAllAccommodation(_ context.Context, in *protos
 }
 func (s MyAccommodationServer) SetAccommodation(_ context.Context, in *protos.AccommodationResponse) (*protos.Emptya, error) {
 	out := new(protos.AccommodationResponse)
+	out.Uid = in.GetUid()
 	out.Name = in.GetName()
-	out.Price = in.GetPrice()
 	out.Location = in.GetLocation()
 	out.Adress = in.GetAdress()
 	out.Email = in.GetEmail()
-
 	err := s.repo.Create(out)
 	if err != nil {
 		s.logger.Println(err)

@@ -135,7 +135,6 @@ func (ar *AccommodationRepo) Create(profile *protos.AccommodationResponse) error
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	accommodationCollection := ar.getCollection()
-	fmt.Println(profile.GetId())
 	result, err := accommodationCollection.InsertOne(ctx, &profile)
 	if err != nil {
 		ar.logger.Println(err)
@@ -153,7 +152,6 @@ func (ar *AccommodationRepo) Update(accommodation *protos.AccommodationResponse)
 	filter := bson.M{"email": accommodation.GetEmail()}
 	update := bson.M{"$set": bson.M{
 		"name":     accommodation.GetName(),
-		"price":    accommodation.GetPrice(),
 		"location": accommodation.GetLocation(),
 		"adress":   accommodation.GetAdress(),
 	}}

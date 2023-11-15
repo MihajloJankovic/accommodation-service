@@ -20,7 +20,6 @@ message  AccommodationRequest {
 message  AccommodationResponse {
   string uid = 1;
   string name = 2;
-  string price = 3;
   string location = 4;
   string adress = 5;
   string email = 6;
