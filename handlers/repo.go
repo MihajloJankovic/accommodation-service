@@ -71,10 +71,27 @@ func (ar *AccommodationRepo) GetAll() ([]*protos.AccommodationResponse, error) {
 		ar.logger.Println(err)
 		return nil, err
 	}
-	if err = accommodationCursor.All(ctx, &accommodationsSlice); err != nil {
+	defer func(accommodationCursor *mongo.Cursor, ctx context.Context) {
+		err := accommodationCursor.Close(ctx)
+		if err != nil {
+			ar.logger.Println(err)
+		}
+	}(accommodationCursor, ctx)
+
+	for accommodationCursor.Next(ctx) {
+		var accommodation protos.AccommodationResponse
+		if err := accommodationCursor.Decode(&accommodation); err != nil {
+			ar.logger.Println(err)
+			return nil, err
+		}
+		accommodationsSlice = append(accommodationsSlice, &accommodation)
+	}
+
+	if err := accommodationCursor.Err(); err != nil {
 		ar.logger.Println(err)
 		return nil, err
 	}
+
 	return accommodationsSlice, nil
 }
 
