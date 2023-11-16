@@ -3,7 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
-	protos "github.com/MihajloJankovic/accommodation-service/protos/glavno"
+	protos "github.com/MihajloJankovic/accommodation-service/protos/main"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -156,4 +156,124 @@ func (ar *AccommodationRepo) getCollection() *mongo.Collection {
 	accommodationDatabase := ar.cli.Database("mongoAccommodation")
 	accommodationCollection := accommodationDatabase.Collection("accommodations")
 	return accommodationCollection
+}
+
+func (ar *AccommodationRepo) FilterByPriceRange(minPrice, maxPrice float32) ([]*protos.AccommodationResponse, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	accommodationCollection := ar.getCollection()
+	var accommodationsSlice []*protos.AccommodationResponse
+
+	filter := bson.M{
+		"price": bson.M{
+			"$gte": minPrice,
+			"$lte": maxPrice,
+		},
+	}
+
+	accommodationCursor, err := accommodationCollection.Find(ctx, filter)
+	if err != nil {
+		ar.logger.Println(err)
+		return nil, err
+	}
+	defer func(accommodationCursor *mongo.Cursor, ctx context.Context) {
+		err := accommodationCursor.Close(ctx)
+		if err != nil {
+			ar.logger.Println(err)
+		}
+	}(accommodationCursor, ctx)
+
+	for accommodationCursor.Next(ctx) {
+		var accommodation protos.AccommodationResponse
+		if err := accommodationCursor.Decode(&accommodation); err != nil {
+			ar.logger.Println(err)
+			return nil, err
+		}
+		accommodationsSlice = append(accommodationsSlice, &accommodation)
+	}
+
+	if err := accommodationCursor.Err(); err != nil {
+		ar.logger.Println(err)
+		return nil, err
+	}
+
+	return accommodationsSlice, nil
+}
+
+func (ar *AccommodationRepo) FilterByAmenities(amenitiesList []string) ([]*protos.AccommodationResponse, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	accommodationCollection := ar.getCollection()
+	var filteredAccommodations []*protos.AccommodationResponse
+
+	// Formiraj filter na osnovu amenitiesList
+	filter := bson.M{"amenities": bson.M{"$in": amenitiesList}}
+
+	accommodationCursor, err := accommodationCollection.Find(ctx, filter)
+	if err != nil {
+		ar.logger.Println(err)
+		return nil, err
+	}
+	defer func(accommodationCursor *mongo.Cursor, ctx context.Context) {
+		err := accommodationCursor.Close(ctx)
+		if err != nil {
+			ar.logger.Println(err)
+		}
+	}(accommodationCursor, ctx)
+
+	for accommodationCursor.Next(ctx) {
+		var accommodation protos.AccommodationResponse
+		if err := accommodationCursor.Decode(&accommodation); err != nil {
+			ar.logger.Println(err)
+			return nil, err
+		}
+		filteredAccommodations = append(filteredAccommodations, &accommodation)
+	}
+
+	if err := accommodationCursor.Err(); err != nil {
+		ar.logger.Println(err)
+		return nil, err
+	}
+
+	return filteredAccommodations, nil
+}
+
+func (ar *AccommodationRepo) FilterByHost(hostEmail string) ([]*protos.AccommodationResponse, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	accommodationCollection := ar.getCollection()
+	var filteredAccommodations []*protos.AccommodationResponse
+
+	filter := bson.M{"email": hostEmail}
+
+	accommodationCursor, err := accommodationCollection.Find(ctx, filter)
+	if err != nil {
+		ar.logger.Println(err)
+		return nil, err
+	}
+	defer func(accommodationCursor *mongo.Cursor, ctx context.Context) {
+		err := accommodationCursor.Close(ctx)
+		if err != nil {
+			ar.logger.Println(err)
+		}
+	}(accommodationCursor, ctx)
+
+	for accommodationCursor.Next(ctx) {
+		var accommodation protos.AccommodationResponse
+		if err := accommodationCursor.Decode(&accommodation); err != nil {
+			ar.logger.Println(err)
+			return nil, err
+		}
+		filteredAccommodations = append(filteredAccommodations, &accommodation)
+	}
+
+	if err := accommodationCursor.Err(); err != nil {
+		ar.logger.Println(err)
+		return nil, err
+	}
+
+	return filteredAccommodations, nil
 }

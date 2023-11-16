@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"context"
-	protos "github.com/MihajloJankovic/accommodation-service/protos/glavno"
+	protos "github.com/MihajloJankovic/accommodation-service/protos/main"
 	"log"
 )
 
@@ -55,16 +55,42 @@ func (s MyAccommodationServer) UpdateAccommodation(_ context.Context, in *protos
 }
 
 func (s MyAccommodationServer) FilterByPriceRange(_ context.Context, in *protos.PriceRangeRequest) (*protos.DummyList, error) {
-	// Implementiraj filtriranje smeštaja po opsegu cene
-	// ...
+	filteredAccommodations, err := s.repo.FilterByPriceRange(in.MinPrice, in.MaxPrice)
+	if err != nil {
+		s.logger.Println(err)
+		return nil, err
+	}
+
+	dummyList := &protos.DummyList{Dummy: filteredAccommodations}
+
+	return dummyList, nil
 }
 
 func (s MyAccommodationServer) FilterByAmenities(_ context.Context, in *protos.AmenitiesRequest) (*protos.DummyList, error) {
-	// Implementiraj filtriranje smeštaja po pogodnostima
-	// ...
+	amenitiesList := in.GetAmenities()
+
+	filteredAccommodations, err := s.repo.FilterByAmenities(amenitiesList)
+	if err != nil {
+		return nil, err
+	}
+
+	dummyList := &protos.DummyList{
+		Dummy: filteredAccommodations,
+	}
+
+	return dummyList, nil
 }
 
 func (s MyAccommodationServer) FilterByHost(_ context.Context, in *protos.HostRequest) (*protos.DummyList, error) {
-	// Implementiraj filtriranje smeštaja po host-u
-	// ...
+	hostEmail := in.GetHostEmail()
+
+	filteredAccommodations, err := s.repo.FilterByHost(hostEmail)
+	if err != nil {
+		return nil, err
+	}
+	dummyList := &protos.DummyList{
+		Dummy: filteredAccommodations,
+	}
+
+	return dummyList, nil
 }

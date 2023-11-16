@@ -5,6 +5,9 @@ service accommodation {
   rpc GetAccommodation(AccommodationRequest) returns (DummyList);
   rpc SetAccommodation(AccommodationResponse) returns (Emptya);
   rpc UpdateAccommodation(AccommodationResponse) returns (Emptya);
+  rpc FilterByPriceRange(PriceRangeRequest) returns (DummyList);
+  rpc FilterByAmenities(AmenitiesRequest) returns (DummyList);
+  rpc FilterByHost(HostRequest) returns (DummyList);
 }
 message DummyList {
   repeated AccommodationResponse dummy = 1;
@@ -13,6 +16,11 @@ message DummyList {
 message  AccommodationRequest {
   string email = 1;
 }
+
+message AmenitiesRequest {
+  repeated string amenities = 1;
+}
+
 message  AccommodationResponse {
   string name = 1;
   string price = 2;
@@ -21,5 +29,15 @@ message  AccommodationResponse {
   string email = 5;
 
 }
+
+message HostRequest {
+  string host_email = 1;
+}
+
+message PriceRangeRequest {
+  float min_price = 1;
+  float max_price = 2;
+}
+
 message  Emptya {
 }
