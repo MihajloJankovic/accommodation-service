@@ -3,7 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
-	protos "github.com/MihajloJankovic/accommodation-service/protos/protoGen"
+	protos "github.com/MihajloJankovic/accommodation-service/protos/glavno"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"

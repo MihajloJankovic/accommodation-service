@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"github.com/MihajloJankovic/accommodation-service/handlers"
-	protos "github.com/MihajloJankovic/accommodation-service/protos/protoGen"
+	protos "github.com/MihajloJankovic/accommodation-service/protos/glavno"
 	"google.golang.org/grpc"
 	"log"
 	"net"
