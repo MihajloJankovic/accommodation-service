@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"context"
-	protos "github.com/MihajloJankovic/accommodation-service/protos/glavno"
+	protos "github.com/MihajloJankovic/accommodation-service/protos/main"
 	"log"
 )
 

@@ -4,7 +4,7 @@
 // - protoc             v4.25.0
 // source: aplikacias.proto
 
-package glavno
+package protosGen
 
 import (
 	context "context"
