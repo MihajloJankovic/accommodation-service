@@ -20,6 +20,8 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	Accommodation_GetAccommodation_FullMethodName    = "/accommodation/GetAccommodation"
+	Accommodation_GetAllAccommodation_FullMethodName = "/accommodation/GetAllAccommodation"
+	Accommodation_GetOneAccommodation_FullMethodName = "/accommodation/GetOneAccommodation"
 	Accommodation_SetAccommodation_FullMethodName    = "/accommodation/SetAccommodation"
 	Accommodation_UpdateAccommodation_FullMethodName = "/accommodation/UpdateAccommodation"
 	Accommodation_FilterByPriceRange_FullMethodName  = "/accommodation/FilterByPriceRange"
@@ -32,6 +34,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AccommodationClient interface {
 	GetAccommodation(ctx context.Context, in *AccommodationRequest, opts ...grpc.CallOption) (*DummyList, error)
+	GetAllAccommodation(ctx context.Context, in *Emptya, opts ...grpc.CallOption) (*DummyList, error)
+	GetOneAccommodation(ctx context.Context, in *AccommodationRequestOne, opts ...grpc.CallOption) (*AccommodationResponse, error)
 	SetAccommodation(ctx context.Context, in *AccommodationResponse, opts ...grpc.CallOption) (*Emptya, error)
 	UpdateAccommodation(ctx context.Context, in *AccommodationResponse, opts ...grpc.CallOption) (*Emptya, error)
 	FilterByPriceRange(ctx context.Context, in *PriceRangeRequest, opts ...grpc.CallOption) (*DummyList, error)
@@ -50,6 +54,24 @@ func NewAccommodationClient(cc grpc.ClientConnInterface) AccommodationClient {
 func (c *accommodationClient) GetAccommodation(ctx context.Context, in *AccommodationRequest, opts ...grpc.CallOption) (*DummyList, error) {
 	out := new(DummyList)
 	err := c.cc.Invoke(ctx, Accommodation_GetAccommodation_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accommodationClient) GetAllAccommodation(ctx context.Context, in *Emptya, opts ...grpc.CallOption) (*DummyList, error) {
+	out := new(DummyList)
+	err := c.cc.Invoke(ctx, Accommodation_GetAllAccommodation_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accommodationClient) GetOneAccommodation(ctx context.Context, in *AccommodationRequestOne, opts ...grpc.CallOption) (*AccommodationResponse, error) {
+	out := new(AccommodationResponse)
+	err := c.cc.Invoke(ctx, Accommodation_GetOneAccommodation_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -106,6 +128,8 @@ func (c *accommodationClient) FilterByHost(ctx context.Context, in *HostRequest,
 // for forward compatibility
 type AccommodationServer interface {
 	GetAccommodation(context.Context, *AccommodationRequest) (*DummyList, error)
+	GetAllAccommodation(context.Context, *Emptya) (*DummyList, error)
+	GetOneAccommodation(context.Context, *AccommodationRequestOne) (*AccommodationResponse, error)
 	SetAccommodation(context.Context, *AccommodationResponse) (*Emptya, error)
 	UpdateAccommodation(context.Context, *AccommodationResponse) (*Emptya, error)
 	FilterByPriceRange(context.Context, *PriceRangeRequest) (*DummyList, error)
@@ -120,6 +144,12 @@ type UnimplementedAccommodationServer struct {
 
 func (UnimplementedAccommodationServer) GetAccommodation(context.Context, *AccommodationRequest) (*DummyList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAccommodation not implemented")
+}
+func (UnimplementedAccommodationServer) GetAllAccommodation(context.Context, *Emptya) (*DummyList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllAccommodation not implemented")
+}
+func (UnimplementedAccommodationServer) GetOneAccommodation(context.Context, *AccommodationRequestOne) (*AccommodationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOneAccommodation not implemented")
 }
 func (UnimplementedAccommodationServer) SetAccommodation(context.Context, *AccommodationResponse) (*Emptya, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetAccommodation not implemented")
@@ -163,6 +193,42 @@ func _Accommodation_GetAccommodation_Handler(srv interface{}, ctx context.Contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AccommodationServer).GetAccommodation(ctx, req.(*AccommodationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Accommodation_GetAllAccommodation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Emptya)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccommodationServer).GetAllAccommodation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Accommodation_GetAllAccommodation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccommodationServer).GetAllAccommodation(ctx, req.(*Emptya))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Accommodation_GetOneAccommodation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccommodationRequestOne)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccommodationServer).GetOneAccommodation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Accommodation_GetOneAccommodation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccommodationServer).GetOneAccommodation(ctx, req.(*AccommodationRequestOne))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -267,6 +333,14 @@ var Accommodation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAccommodation",
 			Handler:    _Accommodation_GetAccommodation_Handler,
+		},
+		{
+			MethodName: "GetAllAccommodation",
+			Handler:    _Accommodation_GetAllAccommodation_Handler,
+		},
+		{
+			MethodName: "GetOneAccommodation",
+			Handler:    _Accommodation_GetOneAccommodation_Handler,
 		},
 		{
 			MethodName: "SetAccommodation",

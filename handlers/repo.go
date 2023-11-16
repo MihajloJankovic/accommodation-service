@@ -3,7 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
-	protos "github.com/MihajloJankovic/accommodation-service/protos/main"
+	protos "github.com/MihajloJankovic/accommodation-service/protos/protoGen"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -59,23 +59,56 @@ func (ar *AccommodationRepo) Ping() {
 	}
 	fmt.Println(databases)
 }
-func (ar *AccommodationRepo) GetAll() (*[]protos.AccommodationResponse, error) {
+func (ar *AccommodationRepo) GetAll() ([]*protos.AccommodationResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	accommodationCollection := ar.getCollection()
-	var accommodationsSlice []protos.AccommodationResponse
+	var accommodationsSlice []*protos.AccommodationResponse
 
 	accommodationCursor, err := accommodationCollection.Find(ctx, bson.M{})
 	if err != nil {
 		ar.logger.Println(err)
 		return nil, err
 	}
-	if err = accommodationCursor.All(ctx, &accommodationsSlice); err != nil {
+	defer func(accommodationCursor *mongo.Cursor, ctx context.Context) {
+		err := accommodationCursor.Close(ctx)
+		if err != nil {
+			ar.logger.Println(err)
+		}
+	}(accommodationCursor, ctx)
+
+	for accommodationCursor.Next(ctx) {
+		var accommodation protos.AccommodationResponse
+		if err := accommodationCursor.Decode(&accommodation); err != nil {
+			ar.logger.Println(err)
+			return nil, err
+		}
+		accommodationsSlice = append(accommodationsSlice, &accommodation)
+	}
+
+	if err := accommodationCursor.Err(); err != nil {
 		ar.logger.Println(err)
 		return nil, err
 	}
-	return &accommodationsSlice, nil
+
+	return accommodationsSlice, nil
+}
+
+func (ar *AccommodationRepo) GetByUuid(id string) (*protos.AccommodationResponse, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	accCollection := ar.getCollection()
+	var acc protos.AccommodationResponse
+
+	err := accCollection.FindOne(ctx, bson.M{"uid": id}).Decode(&acc)
+	if err != nil {
+		ar.logger.Println(err)
+		return nil, err
+	}
+
+	return &acc, nil
 }
 func (ar *AccommodationRepo) GetById(email string) ([]*protos.AccommodationResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -119,7 +152,6 @@ func (ar *AccommodationRepo) Create(profile *protos.AccommodationResponse) error
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	accommodationCollection := ar.getCollection()
-
 	result, err := accommodationCollection.InsertOne(ctx, &profile)
 	if err != nil {
 		ar.logger.Println(err)
@@ -137,7 +169,6 @@ func (ar *AccommodationRepo) Update(accommodation *protos.AccommodationResponse)
 	filter := bson.M{"email": accommodation.GetEmail()}
 	update := bson.M{"$set": bson.M{
 		"name":     accommodation.GetName(),
-		"price":    accommodation.GetPrice(),
 		"location": accommodation.GetLocation(),
 		"adress":   accommodation.GetAdress(),
 	}}
