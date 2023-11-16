@@ -53,3 +53,18 @@ func (s MyAccommodationServer) UpdateAccommodation(_ context.Context, in *protos
 	}
 	return new(protos.Emptya), nil
 }
+
+func (s MyAccommodationServer) FilterByPriceRange(_ context.Context, in *protos.PriceRangeRequest) (*protos.DummyList, error) {
+	// Implementiraj filtriranje smeštaja po opsegu cene
+	// ...
+}
+
+func (s MyAccommodationServer) FilterByAmenities(_ context.Context, in *protos.AmenitiesRequest) (*protos.DummyList, error) {
+	// Implementiraj filtriranje smeštaja po pogodnostima
+	// ...
+}
+
+func (s MyAccommodationServer) FilterByHost(_ context.Context, in *protos.HostRequest) (*protos.DummyList, error) {
+	// Implementiraj filtriranje smeštaja po host-u
+	// ...
+}
