@@ -64,6 +64,7 @@ func (s MyAccommodationServer) SetAccommodation(_ context.Context, in *protos.Ac
 	out.Location = in.GetLocation()
 	out.Adress = in.GetAdress()
 	out.Email = in.GetEmail()
+	out.Amenities = in.GetAmenities()
 	err = s.repo.Create(out)
 	if err != nil {
 		s.logger.Println(err)

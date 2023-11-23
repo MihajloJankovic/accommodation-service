@@ -31,7 +31,7 @@ message  AccommodationResponse {
   string location = 4;
   string adress = 5;
   string email = 6;
-
+  repeated string amenities = 7;
 }
 
 message HostRequest {
