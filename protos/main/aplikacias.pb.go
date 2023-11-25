@@ -4,7 +4,7 @@
 // 	protoc        v4.25.0
 // source: aplikacias.proto
 
-package protosGen
+package protoGen
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
