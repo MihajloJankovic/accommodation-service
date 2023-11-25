@@ -7,6 +7,7 @@ service accommodation {
   rpc GetOneAccommodation(AccommodationRequestOne) returns (AccommodationResponse);
   rpc SetAccommodation(AccommodationResponse) returns (Emptya);
   rpc UpdateAccommodation(AccommodationResponse) returns (Emptya);
+  rpc DeleteAccommodation(DeleteRequest) returns (Emptya);
   rpc FilterByPriceRange(PriceRangeRequest) returns (DummyList);
   rpc FilterByAmenities(AmenitiesRequest) returns (DummyList);
   rpc FilterByHost(HostRequest) returns (DummyList);
@@ -16,6 +17,9 @@ message DummyList {
 }
 message  AccommodationRequestOne {
   string id = 1;
+}
+message DeleteRequest{
+  string uid = 1;
 }
 message  AccommodationRequest {
   string email = 1;

@@ -75,14 +75,12 @@ func (s MyAccommodationServer) SetAccommodation(_ context.Context, in *protos.Ac
 
 // Validation function for SetAccommodation
 func validateAccommodationInput(accommodation *protos.AccommodationResponse) error {
-	// Perform validation checks for each attribute
 	if accommodation.GetUid() == "" {
 		return errors.New("UID is required")
 	}
 	if accommodation.GetName() == "" {
 		return errors.New("Name is required")
 	}
-	// Add additional checks for other attributes...
 
 	return nil
 }
@@ -103,6 +101,21 @@ func (s MyAccommodationServer) UpdateAccommodation(_ context.Context, in *protos
 
 	err = s.repo.Update(in)
 	if err != nil {
+		return nil, err
+	}
+
+	return new(protos.Emptya), nil
+}
+func (s MyAccommodationServer) DeleteAccommodation(_ context.Context, in *protos.DeleteRequest) (*protos.Emptya, error) {
+	// Validate input
+	if in.GetUid() == "" {
+		return nil, errors.New("ID is required for deletion")
+	}
+
+	// Perform the deletion
+	err := s.repo.DeleteByID(in.GetUid())
+	if err != nil {
+		s.logger.Println(err)
 		return nil, err
 	}
 

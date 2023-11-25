@@ -4,7 +4,7 @@
 // - protoc             v4.25.0
 // source: aplikacias.proto
 
-package protoGen
+package protosGen
 
 import (
 	context "context"
@@ -24,6 +24,7 @@ const (
 	Accommodation_GetOneAccommodation_FullMethodName = "/accommodation/GetOneAccommodation"
 	Accommodation_SetAccommodation_FullMethodName    = "/accommodation/SetAccommodation"
 	Accommodation_UpdateAccommodation_FullMethodName = "/accommodation/UpdateAccommodation"
+	Accommodation_DeleteAccommodation_FullMethodName = "/accommodation/DeleteAccommodation"
 	Accommodation_FilterByPriceRange_FullMethodName  = "/accommodation/FilterByPriceRange"
 	Accommodation_FilterByAmenities_FullMethodName   = "/accommodation/FilterByAmenities"
 	Accommodation_FilterByHost_FullMethodName        = "/accommodation/FilterByHost"
@@ -38,6 +39,7 @@ type AccommodationClient interface {
 	GetOneAccommodation(ctx context.Context, in *AccommodationRequestOne, opts ...grpc.CallOption) (*AccommodationResponse, error)
 	SetAccommodation(ctx context.Context, in *AccommodationResponse, opts ...grpc.CallOption) (*Emptya, error)
 	UpdateAccommodation(ctx context.Context, in *AccommodationResponse, opts ...grpc.CallOption) (*Emptya, error)
+	DeleteAccommodation(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*Emptya, error)
 	FilterByPriceRange(ctx context.Context, in *PriceRangeRequest, opts ...grpc.CallOption) (*DummyList, error)
 	FilterByAmenities(ctx context.Context, in *AmenitiesRequest, opts ...grpc.CallOption) (*DummyList, error)
 	FilterByHost(ctx context.Context, in *HostRequest, opts ...grpc.CallOption) (*DummyList, error)
@@ -96,6 +98,15 @@ func (c *accommodationClient) UpdateAccommodation(ctx context.Context, in *Accom
 	return out, nil
 }
 
+func (c *accommodationClient) DeleteAccommodation(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*Emptya, error) {
+	out := new(Emptya)
+	err := c.cc.Invoke(ctx, Accommodation_DeleteAccommodation_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *accommodationClient) FilterByPriceRange(ctx context.Context, in *PriceRangeRequest, opts ...grpc.CallOption) (*DummyList, error) {
 	out := new(DummyList)
 	err := c.cc.Invoke(ctx, Accommodation_FilterByPriceRange_FullMethodName, in, out, opts...)
@@ -132,6 +143,7 @@ type AccommodationServer interface {
 	GetOneAccommodation(context.Context, *AccommodationRequestOne) (*AccommodationResponse, error)
 	SetAccommodation(context.Context, *AccommodationResponse) (*Emptya, error)
 	UpdateAccommodation(context.Context, *AccommodationResponse) (*Emptya, error)
+	DeleteAccommodation(context.Context, *DeleteRequest) (*Emptya, error)
 	FilterByPriceRange(context.Context, *PriceRangeRequest) (*DummyList, error)
 	FilterByAmenities(context.Context, *AmenitiesRequest) (*DummyList, error)
 	FilterByHost(context.Context, *HostRequest) (*DummyList, error)
@@ -156,6 +168,9 @@ func (UnimplementedAccommodationServer) SetAccommodation(context.Context, *Accom
 }
 func (UnimplementedAccommodationServer) UpdateAccommodation(context.Context, *AccommodationResponse) (*Emptya, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateAccommodation not implemented")
+}
+func (UnimplementedAccommodationServer) DeleteAccommodation(context.Context, *DeleteRequest) (*Emptya, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAccommodation not implemented")
 }
 func (UnimplementedAccommodationServer) FilterByPriceRange(context.Context, *PriceRangeRequest) (*DummyList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FilterByPriceRange not implemented")
@@ -269,6 +284,24 @@ func _Accommodation_UpdateAccommodation_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Accommodation_DeleteAccommodation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccommodationServer).DeleteAccommodation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Accommodation_DeleteAccommodation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccommodationServer).DeleteAccommodation(ctx, req.(*DeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Accommodation_FilterByPriceRange_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PriceRangeRequest)
 	if err := dec(in); err != nil {
@@ -349,6 +382,10 @@ var Accommodation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateAccommodation",
 			Handler:    _Accommodation_UpdateAccommodation_Handler,
+		},
+		{
+			MethodName: "DeleteAccommodation",
+			Handler:    _Accommodation_DeleteAccommodation_Handler,
 		},
 		{
 			MethodName: "FilterByPriceRange",

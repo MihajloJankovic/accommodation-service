@@ -182,6 +182,24 @@ func (ar *AccommodationRepo) Update(accommodation *protos.AccommodationResponse)
 	}
 	return nil
 }
+func (ar *AccommodationRepo) DeleteByID(id string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	accommodationCollection := ar.getCollection()
+
+	filter := bson.M{"uid": id}
+
+	result, err := accommodationCollection.DeleteOne(ctx, filter)
+	if err != nil {
+		ar.logger.Println(err)
+		return err
+	}
+
+	ar.logger.Printf("Documents deleted: %v\n", result.DeletedCount)
+
+	return nil
+}
 
 func (ar *AccommodationRepo) getCollection() *mongo.Collection {
 	accommodationDatabase := ar.cli.Database("mongoAccommodation")
