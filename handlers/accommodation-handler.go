@@ -5,6 +5,7 @@ import (
 	"errors"
 	protos "github.com/MihajloJankovic/accommodation-service/protos/main"
 	"log"
+	"strings"
 )
 
 type MyAccommodationServer struct {
@@ -19,21 +20,22 @@ func NewServer(l *log.Logger, r *AccommodationRepo) *MyAccommodationServer {
 }
 func (s MyAccommodationServer) GetOneAccommodation(ctx context.Context, in *protos.AccommodationRequestOne) (*protos.AccommodationResponse, error) {
 	if in.GetId() == "" {
-		return nil, errors.New("Id is required")
+		return nil, errors.New("ID is required")
 	}
-	out, err := s.repo.GetByUuid(in.GetId())
+	out, err := s.repo.GetByUuid(strings.TrimSpace(in.GetId())) // Added trim here
 	if err != nil {
 		s.logger.Println(err)
 		return nil, err
 	}
 	return out, nil
 }
+
 func (s MyAccommodationServer) GetAccommodation(_ context.Context, in *protos.AccommodationRequest) (*protos.DummyList, error) {
 	// Perform validation checks for each attribute
 	if in.GetEmail() == "" {
 		return nil, errors.New("Email is required")
 	}
-	out, err := s.repo.GetById(in.GetEmail())
+	out, err := s.repo.GetById(strings.TrimSpace(in.GetEmail())) // Added trim here
 	if err != nil {
 		s.logger.Println(err)
 		return nil, err
@@ -42,6 +44,7 @@ func (s MyAccommodationServer) GetAccommodation(_ context.Context, in *protos.Ac
 	ss.Dummy = out
 	return ss, nil
 }
+
 func (s MyAccommodationServer) GetAllAccommodation(_ context.Context, in *protos.Emptya) (*protos.DummyList, error) {
 
 	out, err := s.repo.GetAll()
@@ -53,17 +56,18 @@ func (s MyAccommodationServer) GetAllAccommodation(_ context.Context, in *protos
 	ss.Dummy = out
 	return ss, nil
 }
+
 func (s MyAccommodationServer) SetAccommodation(_ context.Context, in *protos.AccommodationResponse) (*protos.Emptya, error) {
 	err := validateAccommodationInput(in)
 	if err != nil {
 		return nil, err
 	}
 	out := new(protos.AccommodationResponse)
-	out.Uid = in.GetUid()
-	out.Name = in.GetName()
-	out.Location = in.GetLocation()
-	out.Adress = in.GetAdress()
-	out.Email = in.GetEmail()
+	out.Uid = strings.TrimSpace(in.GetUid())           // Added trim here
+	out.Name = strings.TrimSpace(in.GetName())         // Added trim here
+	out.Location = strings.TrimSpace(in.GetLocation()) // Added trim here
+	out.Adress = strings.TrimSpace(in.GetAdress())     // Added trim here
+	out.Email = strings.TrimSpace(in.GetEmail())       // Added trim here
 	out.Amenities = in.GetAmenities()
 	err = s.repo.Create(out)
 	if err != nil {
@@ -84,6 +88,7 @@ func validateAccommodationInput(accommodation *protos.AccommodationResponse) err
 
 	return nil
 }
+
 func (s MyAccommodationServer) UpdateAccommodation(_ context.Context, in *protos.AccommodationResponse) (*protos.Emptya, error) {
 	err := s.repo.Update(in)
 	if err != nil {
@@ -99,13 +104,22 @@ func (s MyAccommodationServer) UpdateAccommodation(_ context.Context, in *protos
 		return nil, err
 	}
 
-	err = s.repo.Update(in)
+	out := new(protos.AccommodationResponse)
+	out.Uid = strings.TrimSpace(in.GetUid())           // Added trim here
+	out.Name = strings.TrimSpace(in.GetName())         // Added trim here
+	out.Location = strings.TrimSpace(in.GetLocation()) // Added trim here
+	out.Adress = strings.TrimSpace(in.GetAdress())     // Added trim here
+	out.Email = strings.TrimSpace(in.GetEmail())       // Added trim here
+	out.Amenities = in.GetAmenities()
+
+	err = s.repo.Update(out)
 	if err != nil {
 		return nil, err
 	}
 
 	return new(protos.Emptya), nil
 }
+
 func (s MyAccommodationServer) DeleteAccommodation(_ context.Context, in *protos.DeleteRequest) (*protos.Emptya, error) {
 	// Validate input
 	if in.GetUid() == "" {
@@ -113,7 +127,7 @@ func (s MyAccommodationServer) DeleteAccommodation(_ context.Context, in *protos
 	}
 
 	// Perform the deletion
-	err := s.repo.DeleteByID(in.GetUid())
+	err := s.repo.DeleteByID(strings.TrimSpace(in.GetUid())) // Added trim here
 	if err != nil {
 		s.logger.Println(err)
 		return nil, err
