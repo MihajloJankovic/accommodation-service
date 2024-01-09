@@ -4,90 +4,105 @@ import (
 	"context"
 	"fmt"
 	protos "github.com/MihajloJankovic/accommodation-service/protos/main"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"github.com/gocql/gocql"
 	"log"
 	"os"
-	"time"
 )
 
 type AccommodationRepo struct {
-	logger *log.Logger
-	cli    *mongo.Client
+	logger  *log.Logger
+	session *gocql.Session
+}
+
+func (sr *AccommodationRepo) CloseSession() {
+	sr.session.Close()
 }
 
 // New NoSQL: Constructor which reads db configuration from environment
 func New(ctx context.Context, logger *log.Logger) (*AccommodationRepo, error) {
-	dburi := os.Getenv("MONGO_DB_URI")
+	db := os.Getenv("CASS_DB")
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dburi))
+	// Connect to default keyspace
+	cluster := gocql.NewCluster(db)
+	cluster.Keyspace = "system"
+	session, err := cluster.CreateSession()
 	if err != nil {
+		logger.Println(err)
+		return nil, err
+	}
+	// Create 'student' keyspace
+	err = session.Query(
+		fmt.Sprintf(`CREATE KEYSPACE IF NOT EXISTS %s
+					WITH replication = {
+						'class' : 'SimpleStrategy',
+						'replication_factor' : %d
+					}`, "accomondation", 1)).Exec()
+	if err != nil {
+		logger.Println(err)
+	}
+	session.Close()
+
+	// Connect to student keyspace
+	cluster.Keyspace = "accomondation"
+	cluster.Consistency = gocql.One
+	session, err = cluster.CreateSession()
+	if err != nil {
+		logger.Println(err)
 		return nil, err
 	}
 
+	// Return repository with logger and DB session
 	return &AccommodationRepo{
-		cli:    client,
-		logger: logger,
+		session: session,
+		logger:  logger,
 	}, nil
 }
 
 // Disconnect from database
-func (ar *AccommodationRepo) Disconnect(ctx context.Context) error {
-	err := ar.cli.Disconnect(ctx)
-	if err != nil {
-		return err
-	}
-	return nil
+func (ar *AccommodationRepo) Disconnect(ctx context.Context) {
+	ar.session.Close()
 }
 
-// Ping Check database connection
-func (ar *AccommodationRepo) Ping() {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+func (sr *AccommodationRepo) CreateTables() {
+	err := sr.session.Query(
+		fmt.Sprintf(`CREATE TABLE IF NOT EXISTS your_table_name (
+    uid UUID,
+    name text,
+    location text,
+    adress text,
+    email text,
+    amenities list<text>,
+    PRIMARY KEY (uid)
+) WITH CLUSTERING ORDER BY (uid ASC)`,
+			"accomondations")).Exec()
+	if err != nil {
+		sr.logger.Println(err)
+	}
 
-	// Check connection -> if no error, connection is established
-	err := ar.cli.Ping(ctx, readpref.Primary())
-	if err != nil {
-		ar.logger.Println(err)
-	}
-	// Print available databases
-	databases, err := ar.cli.ListDatabaseNames(ctx, bson.M{})
-	if err != nil {
-		ar.logger.Println(err)
-	}
-	fmt.Println(databases)
 }
+
 func (ar *AccommodationRepo) GetAll() ([]*protos.AccommodationResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	session := ar.session
+	defer session.Close()
 
-	accommodationCollection := ar.getCollection()
 	var accommodationsSlice []*protos.AccommodationResponse
 
-	accommodationCursor, err := accommodationCollection.Find(ctx, bson.M{})
-	if err != nil {
-		ar.logger.Println(err)
-		return nil, err
-	}
-	defer func(accommodationCursor *mongo.Cursor, ctx context.Context) {
-		err := accommodationCursor.Close(ctx)
-		if err != nil {
-			ar.logger.Println(err)
-		}
-	}(accommodationCursor, ctx)
+	query := "SELECT uid, name, location, adress, email, amenities FROM accomondations"
+	iter := session.Query(query).Iter()
 
-	for accommodationCursor.Next(ctx) {
-		var accommodation protos.AccommodationResponse
-		if err := accommodationCursor.Decode(&accommodation); err != nil {
-			ar.logger.Println(err)
-			return nil, err
-		}
+	var accommodation protos.AccommodationResponse
+	for iter.Scan(
+		&accommodation.Uid,
+		&accommodation.Name,
+		&accommodation.Location,
+		&accommodation.Adress,
+		&accommodation.Email,
+		&accommodation.Amenities,
+	) {
 		accommodationsSlice = append(accommodationsSlice, &accommodation)
 	}
 
-	if err := accommodationCursor.Err(); err != nil {
+	if err := iter.Close(); err != nil {
 		ar.logger.Println(err)
 		return nil, err
 	}
@@ -96,153 +111,110 @@ func (ar *AccommodationRepo) GetAll() ([]*protos.AccommodationResponse, error) {
 }
 
 func (ar *AccommodationRepo) GetByUuid(id string) (*protos.AccommodationResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	accCollection := ar.getCollection()
+	query := "SELECT uid, name, location, adress, email, amenities FROM accomondations WHERE uid = ?"
 	var acc protos.AccommodationResponse
 
-	err := accCollection.FindOne(ctx, bson.M{"uid": id}).Decode(&acc)
-	if err != nil {
+	if err := ar.session.Query(query, id).Scan(
+		&acc.Uid,
+		&acc.Name,
+		&acc.Location,
+		&acc.Adress,
+		&acc.Email,
+		&acc.Amenities,
+	); err != nil {
 		ar.logger.Println(err)
 		return nil, err
 	}
 
 	return &acc, nil
 }
+
 func (ar *AccommodationRepo) GetById(email string) ([]*protos.AccommodationResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	query := "SELECT uid, name, location, adress, email, amenities FROM accomondations WHERE email = ?"
+	iter := ar.session.Query(query, email).Iter()
 
-	accommodationCollection := ar.getCollection()
 	var accommodationsSlice []*protos.AccommodationResponse
+	var acc protos.AccommodationResponse
 
-	// Assuming you have a filter based on the email, modify the filter as needed
-	filter := bson.M{"email": email}
-
-	accommodationCursor, err := accommodationCollection.Find(ctx, filter)
-	if err != nil {
-		ar.logger.Println(err)
-		return nil, err
-	}
-	defer func(accommodationCursor *mongo.Cursor, ctx context.Context) {
-		err := accommodationCursor.Close(ctx)
-		if err != nil {
-			ar.logger.Println(err)
-		}
-	}(accommodationCursor, ctx)
-
-	for accommodationCursor.Next(ctx) {
-		var accommodation protos.AccommodationResponse
-		if err := accommodationCursor.Decode(&accommodation); err != nil {
-			ar.logger.Println(err)
-			return nil, err
-		}
-		accommodationsSlice = append(accommodationsSlice, &accommodation)
+	for iter.Scan(
+		&acc.Uid,
+		&acc.Name,
+		&acc.Location,
+		&acc.Adress,
+		&acc.Email,
+		&acc.Amenities,
+	) {
+		accommodationsSlice = append(accommodationsSlice, &acc)
 	}
 
-	if err := accommodationCursor.Err(); err != nil {
+	if err := iter.Close(); err != nil {
 		ar.logger.Println(err)
 		return nil, err
 	}
 
 	return accommodationsSlice, nil
 }
+
 func (ar *AccommodationRepo) Create(profile *protos.AccommodationResponse) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	accommodationCollection := ar.getCollection()
-	result, err := accommodationCollection.InsertOne(ctx, &profile)
-	if err != nil {
+	query := "INSERT INTO accomondations (uid, name, location, adress, email, amenities) VALUES (?, ?, ?, ?, ?, ?)"
+	if err := ar.session.Query(query,
+		profile.Uid,
+		profile.Name,
+		profile.Location,
+		profile.Adress,
+		profile.Email,
+		profile.Amenities,
+	).Exec(); err != nil {
 		ar.logger.Println(err)
 		return err
 	}
-	ar.logger.Printf("Documents ID: %v\n", result.InsertedID)
+
 	return nil
 }
-
 func (ar *AccommodationRepo) Update(accommodation *protos.AccommodationResponse) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	accommodationCollection := ar.getCollection()
-
-	filter := bson.M{"email": accommodation.GetEmail()}
-	update := bson.M{"$set": bson.M{
-		"name":     accommodation.GetName(),
-		"location": accommodation.GetLocation(),
-		"adress":   accommodation.GetAdress(),
-	}}
-	result, err := accommodationCollection.UpdateOne(ctx, filter, update)
-	ar.logger.Printf("Documents matched: %v\n", result.MatchedCount)
-	ar.logger.Printf("Documents updated: %v\n", result.ModifiedCount)
-
-	if err != nil {
+	query := "UPDATE accomondations SET name = ?, location = ?, adress = ? WHERE email = ?"
+	if err := ar.session.Query(query,
+		accommodation.Name,
+		accommodation.Location,
+		accommodation.Adress,
+		accommodation.Email,
+	).Exec(); err != nil {
 		ar.logger.Println(err)
 		return err
 	}
+
 	return nil
 }
+
 func (ar *AccommodationRepo) DeleteByID(id string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	accommodationCollection := ar.getCollection()
-
-	filter := bson.M{"uid": id}
-
-	result, err := accommodationCollection.DeleteOne(ctx, filter)
-	if err != nil {
+	query := "DELETE FROM accomondations WHERE uid = ?"
+	if err := ar.session.Query(query, id).Exec(); err != nil {
 		ar.logger.Println(err)
 		return err
 	}
 
-	ar.logger.Printf("Documents deleted: %v\n", result.DeletedCount)
-
 	return nil
-}
-
-func (ar *AccommodationRepo) getCollection() *mongo.Collection {
-	accommodationDatabase := ar.cli.Database("mongoAccommodation")
-	accommodationCollection := accommodationDatabase.Collection("accommodations")
-	return accommodationCollection
 }
 
 func (ar *AccommodationRepo) FilterByPriceRange(minPrice, maxPrice float32) ([]*protos.AccommodationResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	query := "SELECT uid, name, location, adress, email, amenities FROM accomondations WHERE price >= ? AND price <= ?"
+	iter := ar.session.Query(query, minPrice, maxPrice).Iter()
 
-	accommodationCollection := ar.getCollection()
 	var accommodationsSlice []*protos.AccommodationResponse
+	var acc protos.AccommodationResponse
 
-	filter := bson.M{
-		"price": bson.M{
-			"$gte": minPrice,
-			"$lte": maxPrice,
-		},
+	for iter.Scan(
+		&acc.Uid,
+		&acc.Name,
+		&acc.Location,
+		&acc.Adress,
+		&acc.Email,
+		&acc.Amenities,
+	) {
+		accommodationsSlice = append(accommodationsSlice, &acc)
 	}
 
-	accommodationCursor, err := accommodationCollection.Find(ctx, filter)
-	if err != nil {
-		ar.logger.Println(err)
-		return nil, err
-	}
-	defer func(accommodationCursor *mongo.Cursor, ctx context.Context) {
-		err := accommodationCursor.Close(ctx)
-		if err != nil {
-			ar.logger.Println(err)
-		}
-	}(accommodationCursor, ctx)
-
-	for accommodationCursor.Next(ctx) {
-		var accommodation protos.AccommodationResponse
-		if err := accommodationCursor.Decode(&accommodation); err != nil {
-			ar.logger.Println(err)
-			return nil, err
-		}
-		accommodationsSlice = append(accommodationsSlice, &accommodation)
-	}
-
-	if err := accommodationCursor.Err(); err != nil {
+	if err := iter.Close(); err != nil {
 		ar.logger.Println(err)
 		return nil, err
 	}
@@ -251,37 +223,24 @@ func (ar *AccommodationRepo) FilterByPriceRange(minPrice, maxPrice float32) ([]*
 }
 
 func (ar *AccommodationRepo) FilterByAmenities(amenitiesList []string) ([]*protos.AccommodationResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	query := "SELECT uid, name, location, adress, email, amenities FROM accomondations WHERE amenities CONTAINS ?"
+	iter := ar.session.Query(query, amenitiesList).Iter()
 
-	accommodationCollection := ar.getCollection()
 	var filteredAccommodations []*protos.AccommodationResponse
+	var acc protos.AccommodationResponse
 
-	// Formiraj filter na osnovu amenitiesList
-	filter := bson.M{"amenities": bson.M{"$in": amenitiesList}}
-
-	accommodationCursor, err := accommodationCollection.Find(ctx, filter)
-	if err != nil {
-		ar.logger.Println(err)
-		return nil, err
-	}
-	defer func(accommodationCursor *mongo.Cursor, ctx context.Context) {
-		err := accommodationCursor.Close(ctx)
-		if err != nil {
-			ar.logger.Println(err)
-		}
-	}(accommodationCursor, ctx)
-
-	for accommodationCursor.Next(ctx) {
-		var accommodation protos.AccommodationResponse
-		if err := accommodationCursor.Decode(&accommodation); err != nil {
-			ar.logger.Println(err)
-			return nil, err
-		}
-		filteredAccommodations = append(filteredAccommodations, &accommodation)
+	for iter.Scan(
+		&acc.Uid,
+		&acc.Name,
+		&acc.Location,
+		&acc.Adress,
+		&acc.Email,
+		&acc.Amenities,
+	) {
+		filteredAccommodations = append(filteredAccommodations, &acc)
 	}
 
-	if err := accommodationCursor.Err(); err != nil {
+	if err := iter.Close(); err != nil {
 		ar.logger.Println(err)
 		return nil, err
 	}
@@ -290,36 +249,24 @@ func (ar *AccommodationRepo) FilterByAmenities(amenitiesList []string) ([]*proto
 }
 
 func (ar *AccommodationRepo) FilterByHost(hostEmail string) ([]*protos.AccommodationResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	query := "SELECT uid, name, location, adress, email, amenities FROM accomondations WHERE email = ?"
+	iter := ar.session.Query(query, hostEmail).Iter()
 
-	accommodationCollection := ar.getCollection()
 	var filteredAccommodations []*protos.AccommodationResponse
+	var acc protos.AccommodationResponse
 
-	filter := bson.M{"email": hostEmail}
-
-	accommodationCursor, err := accommodationCollection.Find(ctx, filter)
-	if err != nil {
-		ar.logger.Println(err)
-		return nil, err
-	}
-	defer func(accommodationCursor *mongo.Cursor, ctx context.Context) {
-		err := accommodationCursor.Close(ctx)
-		if err != nil {
-			ar.logger.Println(err)
-		}
-	}(accommodationCursor, ctx)
-
-	for accommodationCursor.Next(ctx) {
-		var accommodation protos.AccommodationResponse
-		if err := accommodationCursor.Decode(&accommodation); err != nil {
-			ar.logger.Println(err)
-			return nil, err
-		}
-		filteredAccommodations = append(filteredAccommodations, &accommodation)
+	for iter.Scan(
+		&acc.Uid,
+		&acc.Name,
+		&acc.Location,
+		&acc.Adress,
+		&acc.Email,
+		&acc.Amenities,
+	) {
+		filteredAccommodations = append(filteredAccommodations, &acc)
 	}
 
-	if err := accommodationCursor.Err(); err != nil {
+	if err := iter.Close(); err != nil {
 		ar.logger.Println(err)
 		return nil, err
 	}
