@@ -9,16 +9,17 @@ import (
 	"os"
 )
 
+// New NoSQL: Constructor which reads db configuration from environment
 type AccommodationRepo struct {
 	logger  *log.Logger
 	session *gocql.Session
 }
 
-func (sr *AccommodationRepo) CloseSession() {
-	sr.session.Close()
+func (ar *AccommodationRepo) CloseSession() {
+	ar.session.Close()
 }
 
-// New NoSQL: Constructor which reads db configuration from environment
+// New: Constructor which reads db configuration from environment
 func New(ctx context.Context, logger *log.Logger) (*AccommodationRepo, error) {
 	db := os.Getenv("CASS_DB")
 
@@ -30,27 +31,27 @@ func New(ctx context.Context, logger *log.Logger) (*AccommodationRepo, error) {
 		logger.Println(err)
 		return nil, err
 	}
+	defer session.Close()
+
 	// Create 'student' keyspace
 	err = session.Query(
 		fmt.Sprintf(`CREATE KEYSPACE IF NOT EXISTS %s
 					WITH replication = {
 						'class' : 'SimpleStrategy',
 						'replication_factor' : %d
-					}`, "accomondation", 1)).Exec()
+					}`, "accommodation", 1)).Exec()
 	if err != nil {
 		logger.Println(err)
 	}
-	session.Close()
 
 	// Connect to student keyspace
-	cluster.Keyspace = "accomondation"
+	cluster.Keyspace = "accommodation"
 	cluster.Consistency = gocql.One
 	session, err = cluster.CreateSession()
 	if err != nil {
 		logger.Println(err)
 		return nil, err
 	}
-
 	// Return repository with logger and DB session
 	return &AccommodationRepo{
 		session: session,
@@ -65,29 +66,26 @@ func (ar *AccommodationRepo) Disconnect(ctx context.Context) {
 
 func (sr *AccommodationRepo) CreateTables() {
 	err := sr.session.Query(
-		fmt.Sprintf(`CREATE TABLE IF NOT EXISTS your_table_name (
-    uid UUID,
-    name text,
-    location text,
-    adress text,
-    email text,
-    amenities list<text>,
-    PRIMARY KEY (uid)
-) WITH CLUSTERING ORDER BY (uid ASC)`,
-			"accomondations")).Exec()
+		`CREATE TABLE IF NOT EXISTS accomondations (
+			uid UUID PRIMARY KEY,
+			name text,
+			location text,
+			adress text,
+			email text,
+			amenities list<text>
+		)`).Exec()
 	if err != nil {
 		sr.logger.Println(err)
 	}
-
 }
 
+// GetAll fetches all accommodations from the database.
 func (ar *AccommodationRepo) GetAll() ([]*protos.AccommodationResponse, error) {
 	session := ar.session
-	defer session.Close()
 
 	var accommodationsSlice []*protos.AccommodationResponse
 
-	query := "SELECT uid, name, location, adress, email, amenities FROM accomondations"
+	query := "SELECT uid, name, location, adress, email, amenities FROM accomondations ALLOW FILTERING"
 	iter := session.Query(query).Iter()
 
 	var accommodation protos.AccommodationResponse
@@ -99,7 +97,18 @@ func (ar *AccommodationRepo) GetAll() ([]*protos.AccommodationResponse, error) {
 		&accommodation.Email,
 		&accommodation.Amenities,
 	) {
-		accommodationsSlice = append(accommodationsSlice, &accommodation)
+		// Create a new instance for each row
+		currentAccommodation := &protos.AccommodationResponse{
+			Uid:       accommodation.Uid,
+			Name:      accommodation.Name,
+			Location:  accommodation.Location,
+			Adress:    accommodation.Adress,
+			Email:     accommodation.Email,
+			Amenities: accommodation.Amenities,
+		}
+
+		// Append the new instance to the slice
+		accommodationsSlice = append(accommodationsSlice, currentAccommodation)
 	}
 
 	if err := iter.Close(); err != nil {
@@ -111,7 +120,7 @@ func (ar *AccommodationRepo) GetAll() ([]*protos.AccommodationResponse, error) {
 }
 
 func (ar *AccommodationRepo) GetByUuid(id string) (*protos.AccommodationResponse, error) {
-	query := "SELECT uid, name, location, adress, email, amenities FROM accomondations WHERE uid = ?"
+	query := "SELECT uid, name, location, adress, email, amenities FROM accomondations WHERE uid = ? ALLOW FILTERING"
 	var acc protos.AccommodationResponse
 
 	if err := ar.session.Query(query, id).Scan(
@@ -130,49 +139,62 @@ func (ar *AccommodationRepo) GetByUuid(id string) (*protos.AccommodationResponse
 }
 
 func (ar *AccommodationRepo) GetById(email string) ([]*protos.AccommodationResponse, error) {
-	query := "SELECT uid, name, location, adress, email, amenities FROM accomondations WHERE email = ?"
+	query := "SELECT uid, name, location, adress, email, amenities FROM accomondations WHERE email = ? ALLOW FILTERING"
 	iter := ar.session.Query(query, email).Iter()
 
 	var accommodationsSlice []*protos.AccommodationResponse
-	var acc protos.AccommodationResponse
-
+	var accommodation protos.AccommodationResponse
 	for iter.Scan(
-		&acc.Uid,
-		&acc.Name,
-		&acc.Location,
-		&acc.Adress,
-		&acc.Email,
-		&acc.Amenities,
+		&accommodation.Uid,
+		&accommodation.Name,
+		&accommodation.Location,
+		&accommodation.Adress,
+		&accommodation.Email,
+		&accommodation.Amenities,
 	) {
-		accommodationsSlice = append(accommodationsSlice, &acc)
+		// Create a new instance for each row
+		currentAccommodation := &protos.AccommodationResponse{
+			Uid:       accommodation.Uid,
+			Name:      accommodation.Name,
+			Location:  accommodation.Location,
+			Adress:    accommodation.Adress,
+			Email:     accommodation.Email,
+			Amenities: accommodation.Amenities,
+		}
+
+		// Append the new instance to the slice
+		accommodationsSlice = append(accommodationsSlice, currentAccommodation)
 	}
 
 	if err := iter.Close(); err != nil {
 		ar.logger.Println(err)
 		return nil, err
 	}
-
+	log.Println(accommodationsSlice)
 	return accommodationsSlice, nil
 }
 
 func (ar *AccommodationRepo) Create(profile *protos.AccommodationResponse) error {
-	query := "INSERT INTO accomondations (uid, name, location, adress, email, amenities) VALUES (?, ?, ?, ?, ?, ?)"
-	if err := ar.session.Query(query,
+	query := "INSERT INTO accomondations (uid, name, location, adress, email, amenities) VALUES (?, ?, ?, ?, ?, ?) ALLOW FILTERING"
+
+	err := ar.session.Query(query,
 		profile.Uid,
 		profile.Name,
 		profile.Location,
 		profile.Adress,
 		profile.Email,
 		profile.Amenities,
-	).Exec(); err != nil {
-		ar.logger.Println(err)
+	).Exec()
+
+	if err != nil {
+		ar.logger.Println("Error inserting accommodation record:", err)
 		return err
 	}
 
 	return nil
 }
 func (ar *AccommodationRepo) Update(accommodation *protos.AccommodationResponse) error {
-	query := "UPDATE accomondations SET name = ?, location = ?, adress = ? WHERE email = ?"
+	query := "UPDATE accomondations SET name = ?, location = ?, adress = ? WHERE email = ? ALLOW FILTERING"
 	if err := ar.session.Query(query,
 		accommodation.Name,
 		accommodation.Location,
@@ -197,21 +219,31 @@ func (ar *AccommodationRepo) DeleteByID(id string) error {
 }
 
 func (ar *AccommodationRepo) FilterByPriceRange(minPrice, maxPrice float32) ([]*protos.AccommodationResponse, error) {
-	query := "SELECT uid, name, location, adress, email, amenities FROM accomondations WHERE price >= ? AND price <= ?"
+	query := "SELECT uid, name, location, adress, email, amenities FROM accomondations WHERE price >= ? AND price <= ? ALLOW FILTERING"
 	iter := ar.session.Query(query, minPrice, maxPrice).Iter()
 
 	var accommodationsSlice []*protos.AccommodationResponse
-	var acc protos.AccommodationResponse
-
+	var accommodation protos.AccommodationResponse
 	for iter.Scan(
-		&acc.Uid,
-		&acc.Name,
-		&acc.Location,
-		&acc.Adress,
-		&acc.Email,
-		&acc.Amenities,
+		&accommodation.Uid,
+		&accommodation.Name,
+		&accommodation.Location,
+		&accommodation.Adress,
+		&accommodation.Email,
+		&accommodation.Amenities,
 	) {
-		accommodationsSlice = append(accommodationsSlice, &acc)
+		// Create a new instance for each row
+		currentAccommodation := &protos.AccommodationResponse{
+			Uid:       accommodation.Uid,
+			Name:      accommodation.Name,
+			Location:  accommodation.Location,
+			Adress:    accommodation.Adress,
+			Email:     accommodation.Email,
+			Amenities: accommodation.Amenities,
+		}
+
+		// Append the new instance to the slice
+		accommodationsSlice = append(accommodationsSlice, currentAccommodation)
 	}
 
 	if err := iter.Close(); err != nil {
@@ -223,23 +255,33 @@ func (ar *AccommodationRepo) FilterByPriceRange(minPrice, maxPrice float32) ([]*
 }
 
 func (ar *AccommodationRepo) FilterByAmenities(amenitiesList []string) ([]*protos.AccommodationResponse, error) {
-	query := "SELECT uid, name, location, adress, email, amenities FROM accomondations WHERE amenities CONTAINS ?"
+	query := "SELECT uid, name, location, adress, email, amenities FROM accomondations WHERE amenities CONTAINS ? ALLOW FILTERING"
 	iter := ar.session.Query(query, amenitiesList).Iter()
 
 	var filteredAccommodations []*protos.AccommodationResponse
-	var acc protos.AccommodationResponse
+	var accommodation protos.AccommodationResponse
 
 	for iter.Scan(
-		&acc.Uid,
-		&acc.Name,
-		&acc.Location,
-		&acc.Adress,
-		&acc.Email,
-		&acc.Amenities,
+		&accommodation.Uid,
+		&accommodation.Name,
+		&accommodation.Location,
+		&accommodation.Adress,
+		&accommodation.Email,
+		&accommodation.Amenities,
 	) {
-		filteredAccommodations = append(filteredAccommodations, &acc)
-	}
+		// Create a new instance for each row
+		currentAccommodation := &protos.AccommodationResponse{
+			Uid:       accommodation.Uid,
+			Name:      accommodation.Name,
+			Location:  accommodation.Location,
+			Adress:    accommodation.Adress,
+			Email:     accommodation.Email,
+			Amenities: accommodation.Amenities,
+		}
 
+		// Append the new instance to the slice
+		filteredAccommodations = append(filteredAccommodations, currentAccommodation)
+	}
 	if err := iter.Close(); err != nil {
 		ar.logger.Println(err)
 		return nil, err
@@ -249,23 +291,34 @@ func (ar *AccommodationRepo) FilterByAmenities(amenitiesList []string) ([]*proto
 }
 
 func (ar *AccommodationRepo) FilterByHost(hostEmail string) ([]*protos.AccommodationResponse, error) {
-	query := "SELECT uid, name, location, adress, email, amenities FROM accomondations WHERE email = ?"
+	query := "SELECT uid, name, location, adress, email, amenities FROM accomondations WHERE email = ? ALLOW FILTERING"
 	iter := ar.session.Query(query, hostEmail).Iter()
 
 	var filteredAccommodations []*protos.AccommodationResponse
-	var acc protos.AccommodationResponse
+
+	var accommodation protos.AccommodationResponse
 
 	for iter.Scan(
-		&acc.Uid,
-		&acc.Name,
-		&acc.Location,
-		&acc.Adress,
-		&acc.Email,
-		&acc.Amenities,
+		&accommodation.Uid,
+		&accommodation.Name,
+		&accommodation.Location,
+		&accommodation.Adress,
+		&accommodation.Email,
+		&accommodation.Amenities,
 	) {
-		filteredAccommodations = append(filteredAccommodations, &acc)
-	}
+		// Create a new instance for each row
+		currentAccommodation := &protos.AccommodationResponse{
+			Uid:       accommodation.Uid,
+			Name:      accommodation.Name,
+			Location:  accommodation.Location,
+			Adress:    accommodation.Adress,
+			Email:     accommodation.Email,
+			Amenities: accommodation.Amenities,
+		}
 
+		// Append the new instance to the slice
+		filteredAccommodations = append(filteredAccommodations, currentAccommodation)
+	}
 	if err := iter.Close(); err != nil {
 		ar.logger.Println(err)
 		return nil, err
