@@ -175,7 +175,7 @@ func (ar *AccommodationRepo) GetById(email string) ([]*protos.AccommodationRespo
 }
 
 func (ar *AccommodationRepo) Create(profile *protos.AccommodationResponse) error {
-	query := "INSERT INTO accomondations (uid, name, location, adress, email, amenities) VALUES (?, ?, ?, ?, ?, ?) ALLOW FILTERING"
+	query := "INSERT INTO accomondations (uid, name, location, adress, email, amenities) VALUES (?, ?, ?, ?, ?, ?)"
 
 	err := ar.session.Query(query,
 		profile.Uid,
@@ -194,7 +194,7 @@ func (ar *AccommodationRepo) Create(profile *protos.AccommodationResponse) error
 	return nil
 }
 func (ar *AccommodationRepo) Update(accommodation *protos.AccommodationResponse) error {
-	query := "UPDATE accomondations SET name = ?, location = ?, adress = ? WHERE email = ? ALLOW FILTERING"
+	query := "UPDATE accomondations SET name = ?, location = ?, adress = ? WHERE email = ?"
 	if err := ar.session.Query(query,
 		accommodation.Name,
 		accommodation.Location,
