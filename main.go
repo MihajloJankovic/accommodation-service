@@ -29,11 +29,16 @@ func main() {
 	if err != nil {
 		logger.Fatal(err)
 	}
-	defer func(accommodationRepo *handlers.AccommodationRepo) {
-		accommodationRepo.CloseSession()
+	defer func(accommodationRepo *handlers.AccommodationRepo, ctx context.Context) {
+		err := accommodationRepo.Disconnect(ctx)
+		if err != nil {
 
-	}(accommodationRepo)
-	accommodationRepo.CreateTables()
+		}
+	}(accommodationRepo, timeoutContext)
+
+	// NoSQL: Checking if the connection was established
+	accommodationRepo.Ping()
+
 	//Initialize the handler and inject said logger
 	service := handlers.NewServer(logger, accommodationRepo)
 
